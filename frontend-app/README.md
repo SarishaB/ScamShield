@@ -150,7 +150,6 @@ Think of it as having Google Lens, Bing Visual Search, Yandex, and TinEye all in
 - 👨‍💻 **Contribute:** Fork and submit pull requests
 - ⭐ Star the repo
 * 💬 Join the [AKS-Labs Telegram group](https://t.me/AKSLabs)
-* ☕ Maybe [**Donate**](https://github.com/sponsors/AKS-Labs), if you can.
 
 
 ---

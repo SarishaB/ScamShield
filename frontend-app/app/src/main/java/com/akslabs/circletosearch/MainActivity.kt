@@ -55,7 +55,6 @@ import androidx.compose.ui.window.DialogProperties
 import com.akslabs.circletosearch.ui.components.PrivacyDialog
 import com.akslabs.circletosearch.ui.theme.CircleToSearchTheme
 import com.akslabs.circletosearch.utils.PrivacyPreferences
-import com.akslabs.circletosearch.ui.components.DonateBottomSheet
 import com.akslabs.circletosearch.ui.components.AccessibilityDisclosureDialog
 import kotlinx.coroutines.launch
 
@@ -113,19 +112,6 @@ fun SetupScreen(onSettingsClick: () -> Unit, onOcrSettingsClick: () -> Unit) {
         lifecycleOwner.lifecycle.addObserver(observer)
         onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
-
-    val showSupportDialog = remember { mutableStateOf(!prefs.getBoolean("support_dialog_dismissed", false)) }
-    val dontShowAgain = remember { mutableStateOf(false) }
-    
-    // Manage Support Dialog Show Count
-    val showCount = remember { prefs.getInt("support_dialog_show_count", 0) }
-    LaunchedEffect(showSupportDialog.value) {
-        if (showSupportDialog.value) {
-            prefs.edit().putInt("support_dialog_show_count", showCount + 1).apply()
-        }
-    }
-    
-    var showDonateSheet by remember { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState()
     val scope = rememberCoroutineScope()
     
@@ -372,8 +358,7 @@ fun SetupScreen(onSettingsClick: () -> Unit, onOcrSettingsClick: () -> Unit) {
 
             // 5. Footer
             SocialLinksRow(
-                context = context,
-                onDonateClick = { showDonateSheet = true }
+                context = context
             )
             Spacer(modifier = Modifier.height(20.dp))
             Box(
@@ -396,42 +381,6 @@ fun SetupScreen(onSettingsClick: () -> Unit, onOcrSettingsClick: () -> Unit) {
             }
             Spacer(modifier = Modifier.height(2.dp))
         }
-    }
-
-    // Support Dialog & Sheet
-    if (showSupportDialog.value) {
-        SupportDialog(
-            showCount = showCount + 1,
-            onDismiss = {
-                showSupportDialog.value = false
-                if (dontShowAgain.value) {
-                    prefs.edit().putBoolean("support_dialog_dismissed", true).apply()
-                }
-            },
-            onDonate = {
-                showDonateSheet = true
-                showSupportDialog.value = false
-                if (dontShowAgain.value) {
-                    prefs.edit().putBoolean("support_dialog_dismissed", true).apply()
-                }
-            },
-            dontShowAgain = dontShowAgain
-        )
-    }
-    
-    if (showDonateSheet) {
-        DonateBottomSheet(
-            onDismiss = { showDonateSheet = false },
-            onDonateOptionSelected = { url ->
-                try {
-                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
-                    context.startActivity(intent)
-                } catch (e: Exception) {
-                    android.widget.Toast.makeText(context, "Could not open link", android.widget.Toast.LENGTH_SHORT).show()
-                }
-                showDonateSheet = false
-            }
-        )
     }
 
     if (showAccessibilityDisclosure) {
@@ -487,11 +436,10 @@ fun isDefaultAssistant(context: android.content.Context): Boolean {
     return assistant == myComponentString
 }
 
-// ... SocialLinksRow, SupportDialog, BubbleSwitch same as before ...
+// Social links and app controls
 @Composable
 fun SocialLinksRow(
-    context: android.content.Context,
-    onDonateClick: () -> Unit
+    context: android.content.Context
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -513,20 +461,6 @@ fun SocialLinksRow(
                 modifier = Modifier.padding(8.dp)
             )
         }
-        
-        IconButton(
-            onClick = onDonateClick, 
-            colors = IconButtonDefaults.filledTonalIconButtonColors(),
-            modifier = Modifier.padding(horizontal = 8.dp)
-        ) {
-            Icon(
-                painter = painterResource(id = com.akslabs.circletosearch.R.drawable.donation),
-                contentDescription = "Donate",
-                tint = MaterialTheme.colorScheme.onSecondaryContainer,
-                modifier = Modifier.padding(8.dp)
-            )
-        }
-        
         IconButton(
             onClick = {
                 val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://t.me/akslabs"))
@@ -545,188 +479,6 @@ fun SocialLinksRow(
     }
 }
 
-@Composable
-fun SupportDialog(
-    showCount: Int,
-    onDismiss: () -> Unit,
-    onDonate: () -> Unit,
-    dontShowAgain: MutableState<Boolean>
-) {
-    androidx.compose.ui.window.Dialog(
-        onDismissRequest = onDismiss,
-        properties = androidx.compose.ui.window.DialogProperties(
-            usePlatformDefaultWidth = false
-        )
-    ) {
-        androidx.compose.material3.Surface(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 24.dp)
-                .clip(androidx.compose.foundation.shape.RoundedCornerShape(28.dp)),
-            color = MaterialTheme.colorScheme.surface,
-            tonalElevation = 6.dp
-        ) {
-            // Outer column: wraps content naturally but caps height at 85% screen height
-            // using BoxWithConstraints so the scroll only kicks in when needed
-            androidx.compose.foundation.layout.BoxWithConstraints(
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                val maxDialogHeight = maxHeight * 0.85f
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .heightIn(max = maxDialogHeight),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    // ── Fixed header (always visible) ──────────────────────────
-                    Column(
-                        modifier = Modifier.padding(start = 24.dp, end = 24.dp, top = 24.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Icon(
-                            painter = painterResource(id = com.akslabs.circletosearch.R.drawable.donation),
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.size(48.dp)
-                        )
-                        Spacer(modifier = Modifier.height(16.dp))
-                        Text(
-                            text = "Help Keep this Project \n Alive! ❤️",
-                            style = MaterialTheme.typography.titleLarge,
-                            fontWeight = FontWeight.ExtraBold,
-                            textAlign = TextAlign.Center
-                        )
-                        Spacer(modifier = Modifier.height(16.dp))
-                    }
-
-                    // ── Scrollable body ────────────────────────────────────────
-                    var isExpanded by remember { mutableStateOf(false) }
-                    Column(
-                        modifier = Modifier
-                            .weight(1f, fill = false)
-                            .verticalScroll(rememberScrollState())
-                            .padding(horizontal = 24.dp),
-                        verticalArrangement = Arrangement.spacedBy(10.dp)
-                    ) {
-                        Text(
-                            text = "Please consider donating to this project Your\n support helps keep this project alive and \n enable us to add amazing \nnew features.",
-                            style = MaterialTheme.typography.bodyLarge,
-                            lineHeight = 22.sp,
-                            textAlign = TextAlign.Center,
-                            fontWeight = FontWeight.Medium
-                        )
-
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clip(androidx.compose.foundation.shape.RoundedCornerShape(16.dp))
-                                .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
-                                .padding(16.dp)
-                                .animateContentSize()
-                        ) {
-                            Row(
-                                modifier = Modifier.fillMaxWidth().clickable { isExpanded = !isExpanded },
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.SpaceBetween
-                            ) {
-                                Text(
-                                    text = "Planned Features:",
-                                    style = MaterialTheme.typography.titleSmall,
-                                    fontWeight = FontWeight.Bold,
-                                    color = MaterialTheme.colorScheme.primary
-                                )
-                                TextButton(onClick = { isExpanded = !isExpanded }, contentPadding = PaddingValues(0.dp)) {
-                                    Icon(
-                                        imageVector = if (isExpanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
-                                        contentDescription = if (isExpanded) "Collapse" else "Expand",
-                                        tint = MaterialTheme.colorScheme.primary
-                                    )
-                                }
-                            }
-
-                            val allFeatures = listOf(
-                                "Self-hosted image upload (remove catbox/litterbox dependency)",
-                                "More triggers: volume button, power button, shake gesture etc.",
-                                "Add more actions to trigger with overlay",
-                                "Offline on-device translation",
-                                "Improved text detection accuracy",
-                                "More Search engines support SearXNG, DuckDuckGo, Brave Search",
-                                "Add more QS tiles to directly launch copy text, QR code, SmartScan etc.",
-                                "Multi-language support",
-                                "More Overlay actions",
-                                "Long-press image to download or share",
-                                "Image result context menu (reverse search, save, open etc.)",
-                                "Material You dynamic theming improvements",
-                                "Floating bubble customization (size, opacity, position)",
-                            )
-
-                            val features = if (isExpanded) allFeatures else allFeatures.take(5)
-
-                            Spacer(modifier = Modifier.height(12.dp))
-                            features.forEach { feature ->
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    modifier = Modifier.padding(vertical = 4.dp)
-                                ) {
-                                    Icon(
-                                        Icons.Default.Check, null,
-                                        modifier = Modifier.size(16.dp),
-                                        tint = MaterialTheme.colorScheme.primary
-                                    )
-                                    Spacer(modifier = Modifier.width(12.dp))
-                                    Text(text = feature, style = MaterialTheme.typography.bodyMedium)
-                                }
-                            }
-                        }
-
-                        if (showCount >= 7) {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clip(androidx.compose.foundation.shape.RoundedCornerShape(8.dp))
-                                    .clickable { dontShowAgain.value = !dontShowAgain.value }
-                                    .padding(vertical = 4.dp)
-                            ) {
-                                Checkbox(
-                                    checked = dontShowAgain.value,
-                                    onCheckedChange = { dontShowAgain.value = it }
-                                )
-                                Text(
-                                    text = "Don't show this again",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    modifier = Modifier.padding(start = 8.dp)
-                                )
-                            }
-                        }
-                        Spacer(modifier = Modifier.height(4.dp))
-                    }
-
-                    // ── Fixed bottom buttons (always visible) ──────────────────
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 24.dp, vertical = 16.dp),
-                        horizontalArrangement = Arrangement.End,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        TextButton(onClick = onDismiss) {
-                            Text("Close")
-                        }
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Button(
-                            onClick = onDonate,
-                            shape = androidx.compose.foundation.shape.RoundedCornerShape(14.dp),
-                            contentPadding = PaddingValues(horizontal = 24.dp, vertical = 12.dp)
-                        ) {
-                            Text("Donate", fontWeight = FontWeight.Bold)
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
 
 @Composable
 fun BubbleSwitch(context: android.content.Context) {

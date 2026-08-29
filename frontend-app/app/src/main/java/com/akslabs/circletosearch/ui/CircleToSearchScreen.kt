@@ -161,7 +161,6 @@ import com.akslabs.circletosearch.utils.QrResultWithBounds
 import com.akslabs.circletosearch.utils.QrScanner
 import com.akslabs.circletosearch.ui.qrResultShortLabel
 import com.akslabs.circletosearch.utils.UIPreferences
-import com.akslabs.circletosearch.ui.components.DonateBottomSheet
 import android.net.Uri
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.Dispatchers
@@ -206,9 +205,6 @@ fun CircleToSearchScreen(
     val effectiveLensOnly = searchModeOverride ?: isGoogleLensOnly
     
     
-    // New Sheet States
-    var showDonateSheet by remember { mutableStateOf(false) }
-
     // Material You logic for colors
     val isDark = isSystemInDarkTheme()
     val dynamicColor = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
@@ -1761,18 +1757,6 @@ fun CircleToSearchScreen(
                     initialPage = if (selectedQrResult != null) detectedQrCodes.indexOf(selectedQrResult!!) else 0
                 )
             }
-        }
-
-        if (showDonateSheet) {
-            DonateBottomSheet(
-                onDismiss = { showDonateSheet = false },
-                onDonateOptionSelected = { url ->
-                    try {
-                        context.startActivity(android.content.Intent(android.content.Intent.ACTION_VIEW, Uri.parse(url)).apply { addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK) })
-                    } catch (e: Exception) {}
-                    showDonateSheet = false
-                }
-            )
         }
 
         if (showSettingsScreen) {
