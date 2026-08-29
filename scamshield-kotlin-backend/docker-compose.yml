@@ -1,0 +1,34 @@
+services:
+  postgres:
+    image: postgres:17
+    container_name: scamshield-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: scamshield
+      POSTGRES_USER: scamshield
+      POSTGRES_PASSWORD: scamshield
+    ports:
+      - "5432:5432"
+    volumes:
+      - scamshield_pg:/var/lib/postgresql/data
+
+  backend:
+    build: .
+    container_name: scamshield-backend
+    restart: unless-stopped
+    depends_on:
+      - postgres
+    environment:
+      DATABASE_URL: jdbc:postgresql://postgres:5432/scamshield
+      DATABASE_USER: scamshield
+      DATABASE_PASSWORD: scamshield
+      VIRUSTOTAL_API_KEY: ${VIRUSTOTAL_API_KEY:-}
+      SCAMSHIELD_API_KEY: ${SCAMSHIELD_API_KEY:-}
+      OCR_ENABLED: "true"
+      TESSERACT_COMMAND: tesseract
+      TESSERACT_LANGUAGE: eng
+    ports:
+      - "8080:8080"
+
+volumes:
+  scamshield_pg:

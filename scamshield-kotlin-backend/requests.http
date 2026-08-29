@@ -1,0 +1,13 @@
+### Health
+GET http://localhost:8080/health
+
+### Text analysis
+POST http://localhost:8080/api/v1/analyze/text
+Content-Type: application/json
+
+{
+  "text": "URGENT: Your account is suspended. Send your OTP and verify at https://example.com/login"
+}
+
+### URL analysis
+GET http://localhost:8080/api/v1/analyze/url?url=https://example.com/login
