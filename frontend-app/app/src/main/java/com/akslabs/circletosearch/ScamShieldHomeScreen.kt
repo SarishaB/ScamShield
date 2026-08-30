@@ -113,10 +113,144 @@ fun ScamShieldHomeScreen(onManualScan:()->Unit,onScreenshot:()->Unit,onCommunity
 
 @Composable fun CommunityScreen(onBack:()->Unit,onReport:()->Unit){var showChakshu by remember{mutableStateOf(false)};val context=LocalContext.current;Column(Modifier.fillMaxSize().background(Background).padding(20.dp).verticalScroll(rememberScrollState())){ScreenHeader("COMMUNITY INTELLIGENCE",onBack);Spacer(Modifier.height(20.dp));Text("What scammers are trying now.",color=TextPrimary,fontSize=25.sp,fontWeight=FontWeight.Bold);Spacer(Modifier.height(6.dp));Text("Recent reports help the community spot recurring patterns.",color=TextMuted,fontSize=12.sp);Spacer(Modifier.height(18.dp));CommunityReportCard("Fake delivery fee SMS","PHISHING","Community report",Amber);CommunityReportCard("UPI refund impersonation","PAYMENT FRAUD","Community report",Red);CommunityReportCard("KYC expiry message","IMPERSONATION","Community report",Violet);CommunityReportCard("Fake customer-care number","IMPERSONATION","Community report",Blue);Spacer(Modifier.height(12.dp));PrimaryButton("+  REPORT A SCAM",onReport);Spacer(Modifier.height(14.dp));Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(18.dp)).background(Color(0xFF0D0A17)).border(1.dp,Color.White.copy(alpha=.06f),RoundedCornerShape(18.dp))){Row(Modifier.fillMaxWidth().clickable{showChakshu=!showChakshu}.padding(15.dp),verticalAlignment=Alignment.CenterVertically){Icon(Icons.Default.Info,null,tint=Cyan,modifier=Modifier.size(18.dp));Spacer(Modifier.width(10.dp));Text("WHAT IS CHAKSHU?",color=TextPrimary,fontSize=11.sp,fontWeight=FontWeight.Bold,modifier=Modifier.weight(1f));Text(if(showChakshu)"−" else "+",color=VioletBright,fontSize=20.sp)};if(showChakshu){Column(Modifier.padding(start=15.dp,end=15.dp,bottom=15.dp)){Text("Chakshu is the Government of India's facility on Sanchar Saathi for reporting suspected fraudulent communications. Reporting helps authorities identify and act on misuse of telecom resources.",color=TextMuted,fontSize=11.sp,lineHeight=17.sp);Spacer(Modifier.height(9.dp));Text("OPEN CHAKSHU →",color=Cyan,fontSize=10.sp,fontWeight=FontWeight.Bold,modifier=Modifier.clickable{context.startActivity(Intent(Intent.ACTION_VIEW,Uri.parse("https://sancharsaathi.gov.in/sfc/")))})}}}}}
 
-@Composable fun ReportScamScreen(onBack:()->Unit){var indicator by remember{mutableStateOf("")};var type by remember{mutableStateOf("")};var category by remember{mutableStateOf("")};var whenWhere by remember{mutableStateOf("")};var description by remember{mutableStateOf("")};Column(Modifier.fillMaxSize().background(Background).padding(20.dp).verticalScroll(rememberScrollState())){ScreenHeader("REPORT A SCAM",onBack);Spacer(Modifier.height(18.dp));Text("Help protect other users.",color=TextPrimary,fontSize=25.sp,fontWeight=FontWeight.Bold);Spacer(Modifier.height(6.dp));Text("Tell us what you observed.",color=TextMuted,fontSize=12.sp);Spacer(Modifier.height(20.dp));FormField("SUSPICIOUS URL / NUMBER / INDICATOR",indicator){indicator=it};Spacer(Modifier.height(12.dp));FormField("TYPE  ·  MESSAGE / URL / QR / UPI",type){type=it};Spacer(Modifier.height(12.dp));FormField("SCAM CATEGORY",category){category=it};Spacer(Modifier.height(12.dp));FormField("WHEN / WHERE DID IT HAPPEN?",whenWhere){whenWhere=it};Spacer(Modifier.height(12.dp));FormField("WHAT HAPPENED?",description,150){description=it};Spacer(Modifier.height(18.dp));PrimaryButton("SUBMIT REPORT",{});Spacer(Modifier.height(12.dp));Text("-",color=TextDim,fontSize=18.sp,modifier=Modifier.fillMaxWidth(),textAlign=TextAlign.Center)}}
+@Composable
+fun ReportScamScreen(onBack: () -> Unit) {
+    var indicator by remember { mutableStateOf("") }
+    var type by remember { mutableStateOf("") }
+    var category by remember { mutableStateOf("") }
+    var whenWhere by remember { mutableStateOf("") }
+    var description by remember { mutableStateOf("") }
+
+    Column(
+        Modifier
+            .fillMaxSize()
+            .background(Background)
+            .padding(20.dp)
+            .verticalScroll(rememberScrollState())
+    ) {
+        ScreenHeader("REPORT A SCAM", onBack)
+
+        Spacer(Modifier.height(18.dp))
+
+        Text(
+            "Help protect other users.",
+            color = TextPrimary,
+            fontSize = 25.sp,
+            fontWeight = FontWeight.Bold
+        )
+
+        Spacer(Modifier.height(6.dp))
+
+        Text(
+            "Tell us what you observed.",
+            color = TextMuted,
+            fontSize = 12.sp
+        )
+
+        Spacer(Modifier.height(20.dp))
+
+        FormField(
+            label = "SUSPICIOUS URL / NUMBER / INDICATOR",
+            value = indicator,
+            onValueChange = { indicator = it }
+        )
+
+        Spacer(Modifier.height(12.dp))
+
+        FormField(
+            label = "TYPE · MESSAGE / URL / QR / UPI",
+            value = type,
+            onValueChange = { type = it }
+        )
+
+        Spacer(Modifier.height(12.dp))
+
+        FormField(
+            label = "SCAM CATEGORY",
+            value = category,
+            onValueChange = { category = it }
+        )
+
+        Spacer(Modifier.height(12.dp))
+
+        FormField(
+            label = "WHEN / WHERE DID IT HAPPEN?",
+            value = whenWhere,
+            onValueChange = { whenWhere = it }
+        )
+
+        Spacer(Modifier.height(12.dp))
+
+        FormField(
+            label = "WHAT HAPPENED?",
+            value = description,
+            height = 150,
+            onValueChange = { description = it }
+        )
+
+        Spacer(Modifier.height(18.dp))
+
+        PrimaryButton(
+            text = "SUBMIT REPORT",
+            onClick = {}
+        )
+
+        Spacer(Modifier.height(12.dp))
+
+        Text(
+            "-",
+            color = TextDim,
+            fontSize = 18.sp,
+            modifier = Modifier.fillMaxWidth(),
+            textAlign = TextAlign.Center
+        )
+    }
+}
 
 @Composable private fun CommunityReportCard(title:String,category:String,subtitle:String,accent:Color){Row(Modifier.fillMaxWidth().padding(bottom=9.dp).clip(RoundedCornerShape(18.dp)).background(Surface).padding(15.dp),verticalAlignment=Alignment.CenterVertically){Box(Modifier.size(9.dp).clip(CircleShape).background(accent));Spacer(Modifier.width(12.dp));Column(Modifier.weight(1f)){Text(title,color=TextPrimary,fontSize=13.sp,fontWeight=FontWeight.SemiBold);Text("$category  ·  $subtitle",color=TextDim,fontSize=10.sp)};Icon(Icons.Default.ArrowForward,null,tint=TextDim,modifier=Modifier.size(16.dp))}}
-@Composable private fun FormField(label:String,value:String,onValueChange:(String)->Unit,height:Int=62){Column{Text(label,color=TextDim,fontSize=9.sp,fontWeight=FontWeight.Bold,letterSpacing=1.sp);Spacer(Modifier.height(6.dp));Box(Modifier.fillMaxWidth().height(height.dp).clip(RoundedCornerShape(16.dp)).background(Surface).border(1.dp,Color.White.copy(alpha=.07f),RoundedCornerShape(16.dp)).padding(14.dp)){BasicTextField(value=value,onValueChange=onValueChange,textStyle=androidx.compose.ui.text.TextStyle(color=TextPrimary,fontSize=13.sp),modifier=Modifier.fillMaxWidth())}}}
+@Composable
+private fun FormField(
+    label: String,
+    value: String,
+    onValueChange: (String) -> Unit,
+    height: Int = 62
+) {
+    Column {
+        Text(
+            label,
+            color = TextDim,
+            fontSize = 9.sp,
+            fontWeight = FontWeight.Bold,
+            letterSpacing = 1.sp
+        )
+
+        Spacer(Modifier.height(6.dp))
+
+        Box(
+            Modifier
+                .fillMaxWidth()
+                .height(height.dp)
+                .clip(RoundedCornerShape(16.dp))
+                .background(Surface)
+                .border(
+                    1.dp,
+                    Color.White.copy(alpha = .07f),
+                    RoundedCornerShape(16.dp)
+                )
+                .padding(14.dp)
+        ) {
+            BasicTextField(
+                value = value,
+                onValueChange = onValueChange,
+                textStyle = androidx.compose.ui.text.TextStyle(
+                    color = TextPrimary,
+                    fontSize = 13.sp
+                ),
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+    }
+}
 @Composable private fun SectionLabel(text:String){Text(text,color=TextDim,fontSize=9.sp,fontWeight=FontWeight.Bold,letterSpacing=1.4.sp)}
 @Composable private fun ScreenHeader(title:String,onBack:()->Unit){Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically){IconButton(onClick=onBack){Icon(Icons.Default.ArrowBack,"Back",tint=TextMuted)};Text(title,color=TextPrimary,fontSize=12.sp,fontWeight=FontWeight.Bold,letterSpacing=1.1.sp)}}
 @Composable private fun PrimaryButton(text:String,onClick:()->Unit){Text(text,color=Color.White,fontSize=11.sp,fontWeight=FontWeight.Bold,letterSpacing=1.sp,textAlign=TextAlign.Center,modifier=Modifier.fillMaxWidth().clip(RoundedCornerShape(16.dp)).background(Brush.horizontalGradient(listOf(Color(0xFF7138D4),Color(0xFF5B6FFF)))).clickable(onClick=onClick).padding(vertical=15.dp))}
