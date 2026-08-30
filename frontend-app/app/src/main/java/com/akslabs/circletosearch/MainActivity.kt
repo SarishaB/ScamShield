@@ -31,20 +31,13 @@ class MainActivity : ComponentActivity() {
                 Surface(color = MaterialTheme.colorScheme.background) {
                     val initiallyEnabled = isAccessibilityServiceEnabled(this@MainActivity)
                     var accessibilityEnabled by remember { mutableStateOf(initiallyEnabled) }
-                    var screen by remember {
-                        mutableStateOf<ScamShieldScreen>(
-                            if (initiallyEnabled) ScamShieldScreen.Home else ScamShieldScreen.Onboarding
-                        )
-                    }
+                    var screen by remember { mutableStateOf<ScamShieldScreen>(if (initiallyEnabled) ScamShieldScreen.Home else ScamShieldScreen.Onboarding) }
 
                     BackHandler(enabled = screen != ScamShieldScreen.Home && screen != ScamShieldScreen.Onboarding) {
                         screen = when (screen) {
                             ScamShieldScreen.Report -> ScamShieldScreen.Community
                             ScamShieldScreen.OcrSettings -> ScamShieldScreen.Settings
-                            ScamShieldScreen.Community,
-                            ScamShieldScreen.ManualScan,
-                            ScamShieldScreen.ScreenshotInput,
-                            ScamShieldScreen.Settings -> ScamShieldScreen.Home
+                            ScamShieldScreen.Community, ScamShieldScreen.ManualScan, ScamShieldScreen.Settings -> ScamShieldScreen.Home
                             else -> ScamShieldScreen.Home
                         }
                     }
@@ -53,11 +46,8 @@ class MainActivity : ComponentActivity() {
                         val observer = LifecycleEventObserver { _, event ->
                             if (event == Lifecycle.Event.ON_RESUME) {
                                 accessibilityEnabled = isAccessibilityServiceEnabled(this@MainActivity)
-                                screen = if (accessibilityEnabled) {
-                                    if (screen == ScamShieldScreen.Onboarding) ScamShieldScreen.Home else screen
-                                } else {
-                                    ScamShieldScreen.Onboarding
-                                }
+                                if (!accessibilityEnabled) screen = ScamShieldScreen.Onboarding
+                                else if (screen == ScamShieldScreen.Onboarding) screen = ScamShieldScreen.Home
                             }
                         }
                         lifecycle.addObserver(observer)
@@ -66,24 +56,20 @@ class MainActivity : ComponentActivity() {
 
                     Crossfade(targetState = screen, label = "scamshield-navigation") { target ->
                         when (target) {
-                            ScamShieldScreen.Onboarding -> ScamShieldOnboardingScreen(
-                                onEnable = { openAccessibilitySettings(this@MainActivity) }
-                            )
-                            ScamShieldScreen.Home -> ScamShieldHomeScreen(
-                                onManualScan = { screen = ScamShieldScreen.ManualScan },
-                                onScreenshot = { screen = ScamShieldScreen.ScreenshotInput },
+                            ScamShieldScreen.Onboarding -> ScamShieldOnboardingScreen { openAccessibilitySettings(this@MainActivity) }
+                            ScamShieldScreen.Home -> ScamShieldHomeScreenV2(
+                                onScan = { screen = ScamShieldScreen.ManualScan },
                                 onCommunity = { screen = ScamShieldScreen.Community },
                                 onSettings = { screen = ScamShieldScreen.Settings }
                             )
-                            ScamShieldScreen.ManualScan -> ManualScanScreen(onBack = { screen = ScamShieldScreen.Home })
-                            ScamShieldScreen.ScreenshotInput -> ScreenshotInputScreen(onBack = { screen = ScamShieldScreen.Home })
-                            ScamShieldScreen.Community -> CommunityScreen(
+                            ScamShieldScreen.ManualScan -> UnifiedScanScreen { screen = ScamShieldScreen.Home }
+                            ScamShieldScreen.Community -> CommunityScreenV2(
                                 onBack = { screen = ScamShieldScreen.Home },
                                 onReport = { screen = ScamShieldScreen.Report }
                             )
-                            ScamShieldScreen.Report -> ReportScamScreen(onBack = { screen = ScamShieldScreen.Community })
-                            ScamShieldScreen.Settings -> OverlaySettingsScreen(onBack = { screen = ScamShieldScreen.Home })
-                            ScamShieldScreen.OcrSettings -> OcrSettingsScreen(onBack = { screen = ScamShieldScreen.Settings })
+                            ScamShieldScreen.Report -> ReportScamScreenV2 { screen = ScamShieldScreen.Community }
+                            ScamShieldScreen.Settings -> OverlaySettingsScreen { screen = ScamShieldScreen.Home }
+                            ScamShieldScreen.OcrSettings -> OcrSettingsScreen { screen = ScamShieldScreen.Settings }
                         }
                     }
                 }
@@ -92,23 +78,14 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-private enum class ScamShieldScreen {
-    Onboarding, Home, ManualScan, ScreenshotInput, Community, Report, Settings, OcrSettings
-}
+private enum class ScamShieldScreen { Onboarding, Home, ManualScan, Community, Report, Settings, OcrSettings }
 
 fun isAccessibilityServiceEnabled(context: Context): Boolean {
     val expected = ComponentName(context, CircleToSearchAccessibilityService::class.java)
-    val enabled = Settings.Secure.getString(
-        context.contentResolver,
-        Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
-    ) ?: return false
-
+    val enabled = Settings.Secure.getString(context.contentResolver, Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES) ?: return false
     val splitter = android.text.TextUtils.SimpleStringSplitter(':')
     splitter.setString(enabled)
-    while (splitter.hasNext()) {
-        val component = ComponentName.unflattenFromString(splitter.next())
-        if (component == expected) return true
-    }
+    while (splitter.hasNext()) if (ComponentName.unflattenFromString(splitter.next()) == expected) return true
     return false
 }
 
@@ -118,9 +95,6 @@ fun isDefaultAssistant(context: Context): Boolean {
 }
 
 fun openAccessibilitySettings(context: Context) {
-    try {
-        context.startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
-    } catch (_: Exception) {
-        Toast.makeText(context, "Could not open Accessibility Settings", Toast.LENGTH_LONG).show()
-    }
+    try { context.startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)) }
+    catch (_: Exception) { Toast.makeText(context, "Could not open Accessibility Settings", Toast.LENGTH_LONG).show() }
 }
