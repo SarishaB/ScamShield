@@ -12,6 +12,7 @@ import androidx.compose.material.icons.filled.Groups
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Shield
 import androidx.compose.material.icons.filled.VerifiedUser
+import androidx.compose.material.icons.filled.FmdGood
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
@@ -45,6 +46,8 @@ fun ScamShieldHomeScreenV2(
 ) {
     val context = LocalContext.current
     val accessibilityEnabled = remember { mutableStateOf(isAccessibilityServiceEnabled(context)) }
+    val prefs = remember { context.getSharedPreferences("app_prefs", android.content.Context.MODE_PRIVATE) }
+    val bubbleEnabled = remember { mutableStateOf(prefs.getBoolean("bubble_enabled", false)) }
 
     Scaffold(
         containerColor = ShieldBackground,
@@ -77,6 +80,19 @@ fun ScamShieldHomeScreenV2(
         ) {
             Spacer(Modifier.height(2.dp))
             ProtectionCardV2(enabled = accessibilityEnabled.value, onEnable = { openAccessibilitySettings(context); accessibilityEnabled.value = true })
+
+            FloatingAccessCardV2(
+                enabled = bubbleEnabled.value,
+                accessibilityEnabled = accessibilityEnabled.value,
+                onToggle = { enabled ->
+                    if (!accessibilityEnabled.value) {
+                        openAccessibilitySettings(context)
+                    } else {
+                        bubbleEnabled.value = enabled
+                        prefs.edit().putBoolean("bubble_enabled", enabled).apply()
+                    }
+                }
+            )
 
             SectionLabel("CHECK SOMETHING SUSPICIOUS")
             ElevatedCard(
@@ -154,6 +170,58 @@ private fun ProtectionCardV2(enabled: Boolean, onEnable: () -> Unit) {
                 Text(if (enabled) "Your in-context ScamShield protection is ready." else "Enable ScamShield accessibility access to scan suspicious content from other apps.", style = MaterialTheme.typography.bodyMedium, color = ShieldMuted)
                 if (!enabled) Button(onClick = onEnable, modifier = Modifier.fillMaxWidth().height(50.dp), shape = RoundedCornerShape(15.dp)) { Text("ENABLE SCAMSHIELD", fontWeight = FontWeight.Bold) }
             }
+        }
+    }
+}
+
+@Composable
+private fun FloatingAccessCardV2(
+    enabled: Boolean,
+    accessibilityEnabled: Boolean,
+    onToggle: (Boolean) -> Unit
+) {
+    ElevatedCard(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(22.dp),
+        colors = CardDefaults.elevatedCardColors(containerColor = ShieldSurfaceRaised),
+        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 0.dp)
+    ) {
+        Row(
+            Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 15.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Surface(
+                shape = RoundedCornerShape(13.dp),
+                color = ShieldViolet.copy(alpha = 0.12f),
+                border = androidx.compose.foundation.BorderStroke(1.dp, ShieldViolet.copy(alpha = 0.22f))
+            ) {
+                Icon(Icons.Default.FmdGood, null, tint = ShieldVioletBright, modifier = Modifier.padding(10.dp).size(23.dp))
+            }
+            Spacer(Modifier.width(13.dp))
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                Text("FLOATING SCAMSHIELD", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold, color = ShieldText)
+                Text(
+                    when {
+                        !accessibilityEnabled -> "Enable ScamShield access to use the floating control"
+                        enabled -> "Available above other apps"
+                        else -> "Add the shield for quick access across apps"
+                    },
+                    style = MaterialTheme.typography.bodySmall,
+                    color = ShieldMuted
+                )
+            }
+            Switch(
+                checked = enabled,
+                onCheckedChange = onToggle,
+                enabled = accessibilityEnabled,
+                colors = SwitchDefaults.colors(
+                    checkedThumbColor = ShieldBackground,
+                    checkedTrackColor = ShieldViolet,
+                    uncheckedThumbColor = ShieldMuted,
+                    uncheckedTrackColor = ShieldBackground,
+                    uncheckedBorderColor = ShieldDim
+                )
+            )
         }
     }
 }
