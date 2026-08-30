@@ -1,7 +1,9 @@
 package com.bitwiseoperators.scamshield.db
 
 import com.bitwiseoperators.scamshield.config.DatabaseConfig
+import com.bitwiseoperators.scamshield.model.CommunityPost
 import com.bitwiseoperators.scamshield.model.CommunityResult
+import com.bitwiseoperators.scamshield.model.IndicatorType
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import java.security.MessageDigest
@@ -36,12 +38,14 @@ class Database(config: DatabaseConfig) {
                     )
                     """.trimIndent()
                 )
+
                 s.executeUpdate(
                     """
                     CREATE INDEX IF NOT EXISTS idx_reports_indicator_hash
                     ON community_reports(indicator_hash)
                     """.trimIndent()
                 )
+
                 s.executeUpdate(
                     """
                     CREATE INDEX IF NOT EXISTS idx_reports_created_at
@@ -60,6 +64,7 @@ class Database(config: DatabaseConfig) {
     ) {
         val normalized = normalize(indicator)
         val hash = sha256(normalized)
+
         connection().use { c ->
             c.prepareStatement(
                 """
@@ -78,6 +83,39 @@ class Database(config: DatabaseConfig) {
         }
     }
 
+    fun listCommunityPosts(): List<CommunityPost> {
+        connection().use { c ->
+            c.prepareStatement(
+                """
+                SELECT id, indicator, indicator_type, category, description, created_at
+                FROM community_reports
+                ORDER BY created_at DESC, id DESC
+                """.trimIndent()
+            ).use { ps ->
+                ps.executeQuery().use { rs ->
+                    val posts = mutableListOf<CommunityPost>()
+
+                    while (rs.next()) {
+                        val type = runCatching {
+                            IndicatorType.valueOf(rs.getString("indicator_type"))
+                        }.getOrDefault(IndicatorType.MESSAGE)
+
+                        posts += CommunityPost(
+                            id = rs.getLong("id"),
+                            indicator = rs.getString("indicator"),
+                            type = type,
+                            category = rs.getString("category"),
+                            description = rs.getString("description"),
+                            createdAt = rs.getTimestamp("created_at").toInstant().toString()
+                        )
+                    }
+
+                    return posts
+                }
+            }
+        }
+    }
+
     fun communityResult(indicator: String): CommunityResult {
         val normalized = normalize(indicator)
         val hash = sha256(normalized)
@@ -91,10 +129,15 @@ class Database(config: DatabaseConfig) {
                 """.trimIndent()
             ).use { ps ->
                 ps.setString(1, hash)
+
                 ps.executeQuery().use { rs ->
                     rs.next()
+
                     val count = rs.getInt(1)
-                    val categories = (rs.getArray(2)?.array as? Array<*>)?.map { it.toString() } ?: emptyList()
+                    val categories =
+                        (rs.getArray(2)?.array as? Array<*>)?.map { it.toString() }
+                            ?: emptyList()
+
                     return CommunityResult(
                         reports = count,
                         corroborated = count >= 3,

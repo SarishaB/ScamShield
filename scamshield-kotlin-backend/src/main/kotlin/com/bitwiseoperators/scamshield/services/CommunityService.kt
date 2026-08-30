@@ -15,6 +15,9 @@ class CommunityService(private val database: Database) {
         return database.communityResult(indicator)
     }
 
+    fun listPosts(): List<CommunityPost> =
+        database.listCommunityPosts()
+
     fun report(request: ReportRequest) {
         require(request.indicator.isNotBlank()) { "indicator must not be blank" }
         require(request.category.isNotBlank()) { "category must not be blank" }

@@ -12,7 +12,7 @@ Android frontend
     v
 Ktor + Kotlin/JVM
     |
-    +--> OCR (Tesseract)
+    +--> OCR.Space cloud OCR
     |
     +--> QR decoder (ZXing)
     |
@@ -22,11 +22,8 @@ Ktor + Kotlin/JVM
     |      +--> community reports
     |
     +--> Message scam-intent engine
-    |      +--> urgency
-    |      +--> OTP/credential/payment language
-    |      +--> impersonation
-    |      +--> investment/reward/refund
-    |      +--> remote-access language
+    |      +--> Google Gemini (Google AI Studio)
+    |      +--> contextual scam/social-engineering analysis
     |
     +--> Risk Fusion
     |
@@ -39,8 +36,9 @@ Ktor + Kotlin/JVM
 3. Community reports are normalized and hashed for exact-indicator lookup.
 4. Community reports are not treated as truth until at least 3 reports corroborate the same indicator.
 5. VirusTotal is optional. The server only performs a reputation lookup when `VIRUSTOTAL_API_KEY` is configured; it does not automatically submit every user URL for scanning.
-6. The built-in message detector is an explainable rule engine. It is a prototype detection layer, not a production-grade ML model.
+6. Message scam-intent analysis is performed by Google Gemini through Google AI Studio; URL/UPI extraction remains deterministic.
 7. For production, put the server behind HTTPS, authentication, rate limiting and a reverse proxy/API gateway.
+8. Screenshot OCR uses OCR.Space instead of launching a local OCR process; extracted OCR text is printed in the backend terminal for debugging.
 
 ## Prerequisites
 
@@ -49,7 +47,7 @@ Ktor + Kotlin/JVM
 - IntelliJ IDEA
 - Android frontend able to send multipart HTTP
 - Optional: VirusTotal API key
-- If running without Docker and OCR is enabled, install the `tesseract` executable and make sure it is on PATH.
+- An OCR.Space API key is required for screenshot OCR. The backend can read it from `OCR_SPACE_API_KEY`.
 
 Ktor 3.5.2 is used in this project.
 
@@ -92,8 +90,10 @@ VIRUSTOTAL_API_KEY=your_key_here
 SCAMSHIELD_API_KEY=your_private_api_key
 
 OCR_ENABLED=true
-TESSERACT_COMMAND=tesseract
-TESSERACT_LANGUAGE=eng
+OCR_SPACE_API_KEY=your_ocr_space_key
+OCR_SPACE_BASE_URL=https://api.ocr.space/parse/image
+OCR_LANGUAGE=eng
+OCR_ENGINE=2
 ```
 
 ## API
@@ -258,3 +258,19 @@ Before a real public deployment, add:
 ## Why this matches the SIH proposal
 
 The uploaded proposal calls for URL analysis, QR decoding/OCR, message scam-intent analysis, community intelligence and risk fusion with explainable reasons and safe next actions. This backend implements those modules as separate Kotlin services so the prototype can be demonstrated end-to-end without coupling the Android UI to the detection logic.
+
+## Gemini message analysis
+
+Message and screenshot OCR text analysis is performed by Google Gemini through the Google AI Studio / Gemini API. The backend uses `gemini-2.5-flash` by default and expects an API key in `GEMINI_API_KEY`. You can create the key in Google AI Studio and start the backend with:
+
+```bash
+export GEMINI_API_KEY="your_google_ai_studio_key"
+./gradlew run
+```
+
+Optional environment variables:
+
+- `GEMINI_MODEL` — override the default model (`gemini-2.5-flash`).
+- `GEMINI_BASE_URL` — override the Gemini API base URL.
+
+The old local keyword category list is no longer used for message-intent scoring. URL/UPI extraction and the separate URL analysis pipeline remain deterministic.

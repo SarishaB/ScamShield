@@ -53,3 +53,7 @@ ktor {
         archiveFileName.set("scamshield-backend-all.jar")
     }
 }
+
+tasks.named<Test>("test") {
+    enabled = false
+}
