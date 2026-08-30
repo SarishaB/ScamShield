@@ -86,6 +86,22 @@ data class ReportRequest(
 )
 
 @Serializable
+data class CommunityPost(
+    val id: Long,
+    val indicator: String,
+    val type: IndicatorType,
+    val category: String,
+    val description: String? = null,
+    val createdAt: String
+)
+
+@Serializable
+data class CommunityPostsResponse(
+    val posts: List<CommunityPost>,
+    val total: Long
+)
+
+@Serializable
 data class ReportResponse(
     val accepted: Boolean,
     val message: String

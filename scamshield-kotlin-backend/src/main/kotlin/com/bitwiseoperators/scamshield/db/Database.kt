@@ -1,7 +1,9 @@
 package com.bitwiseoperators.scamshield.db
 
 import com.bitwiseoperators.scamshield.config.DatabaseConfig
+import com.bitwiseoperators.scamshield.model.CommunityPost
 import com.bitwiseoperators.scamshield.model.CommunityResult
+import com.bitwiseoperators.scamshield.model.IndicatorType
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import java.security.MessageDigest
@@ -77,6 +79,39 @@ class Database(config: DatabaseConfig) {
                 ps.setString(4, category.take(80))
                 ps.setString(5, description?.take(2000))
                 ps.executeUpdate()
+            }
+        }
+    }
+
+    fun listCommunityPosts(): List<CommunityPost> {
+        connection().use { c ->
+            c.prepareStatement(
+                """
+                SELECT id, indicator, indicator_type, category, description, created_at
+                FROM community_reports
+                ORDER BY created_at DESC, id DESC
+                """.trimIndent()
+            ).use { ps ->
+                ps.executeQuery().use { rs ->
+                    val posts = mutableListOf<CommunityPost>()
+
+                    while (rs.next()) {
+                        val type = runCatching {
+                            IndicatorType.valueOf(rs.getString("indicator_type"))
+                        }.getOrDefault(IndicatorType.MESSAGE)
+
+                        posts += CommunityPost(
+                            id = rs.getLong("id"),
+                            indicator = rs.getString("indicator"),
+                            type = type,
+                            category = rs.getString("category"),
+                            description = rs.getString("description"),
+                            createdAt = rs.getTimestamp("created_at").toInstant().toString()
+                        )
+                    }
+
+                    return posts
+                }
             }
         }
     }

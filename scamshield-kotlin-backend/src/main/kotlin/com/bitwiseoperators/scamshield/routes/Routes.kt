@@ -60,6 +60,33 @@ fun Application.configureRoutes(
         // Community reports
         // ---------------------------------------------------------
 
+        // ---------------------------------------------------------
+        // List community reports
+        // ---------------------------------------------------------
+
+        get("/api/v1/reports") {
+            requireApiKey(call, config)
+
+            val posts = runCatching {
+                communityService.listPosts()
+            }.getOrElse {
+                return@get call.respond(
+                    HttpStatusCode.InternalServerError,
+                    ErrorResponse(
+                        "reports_unavailable",
+                        it.message ?: "Unable to load community reports."
+                    )
+                )
+            }
+
+            call.respond(
+                CommunityPostsResponse(
+                    posts = posts,
+                    total = posts.size.toLong()
+                )
+            )
+        }
+
         post("/api/v1/reports") {
             requireApiKey(call, config)
 
