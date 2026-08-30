@@ -1,108 +1,78 @@
-/*
- *
- *  * Copyright (C) 2025 AKS-Labs (original author)
- *  *
- *  * This program is free software: you can redistribute it and/or modify
- *  * it under the terms of the GNU General Public License as published by
- *  * the Free Software Foundation, either version 3 of the License, or
- *  * (at your option) any later version.
- *  *
- *  * This program is distributed in the hope that it will be useful,
- *  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  * GNU General Public License for more details.
- *  *
- *  * You should have received a copy of the GNU General Public License
- *  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- *
- */
-
 package com.akslabs.circletosearch.ui.theme
 
 import android.app.Activity
-import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.dynamicDarkColorScheme
-import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.Density
 import androidx.core.view.WindowCompat
 
 private val DarkColorScheme = darkColorScheme(
-    primary = Purple80,
-    secondary = PurpleGrey80,
-    tertiary = Pink80
-)
-
-private val LightColorScheme = lightColorScheme(
-    primary = Purple40,
-    secondary = PurpleGrey40,
-    tertiary = Pink40
-
-    /* Other default colors to override
-    background = Color(0xFFFFFBFE),
-    surface = Color(0xFFFFFBFE),
-    onPrimary = Color.White,
+    primary = ShieldViolet,
+    onPrimary = Color(0xFF16052F),
+    primaryContainer = Color(0xFF3C176F),
+    onPrimaryContainer = ShieldVioletBright,
+    secondary = ShieldBlue,
     onSecondary = Color.White,
-    onTertiary = Color.White,
-    onBackground = Color(0xFF1C1B1F),
-    onSurface = Color(0xFF1C1B1F),
-    */
+    secondaryContainer = Color(0xFF20254A),
+    onSecondaryContainer = Color(0xFFD9DEFF),
+    tertiary = ShieldCyan,
+    onTertiary = Color(0xFF001E26),
+    background = ShieldBackground,
+    onBackground = ShieldText,
+    surface = ShieldSurface,
+    onSurface = ShieldText,
+    surfaceVariant = ShieldSurfaceRaised,
+    onSurfaceVariant = ShieldMuted,
+    outline = Color(0xFF5A4C70),
+    error = ShieldRed,
+    onError = Color.White
 )
 
-/** Maximum font scale factor the app will honour (1.3 = 130% of normal text size). */
+private val LightColorScheme = darkColorScheme(
+    primary = ShieldViolet,
+    onPrimary = Color.White,
+    secondary = ShieldBlue,
+    tertiary = ShieldCyan,
+    background = ShieldBackground,
+    onBackground = ShieldText,
+    surface = ShieldSurface,
+    onSurface = ShieldText
+)
+
 private const val MAX_FONT_SCALE = 1.3f
 
 @Composable
 fun CircleToSearchTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
-    // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = true,
+    darkTheme: Boolean = true,
+    dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
-    val colorScheme = when {
-        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-            val context = LocalContext.current
-            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-        }
-        darkTheme -> DarkColorScheme
-        else -> LightColorScheme
-    }
+    val colorScheme = if (darkTheme) DarkColorScheme else LightColorScheme
     val view = LocalView.current
     if (!view.isInEditMode) {
         SideEffect {
             val window = (view.context as Activity).window
-            window.statusBarColor = colorScheme.primary.toArgb()
-            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = darkTheme
+            window.statusBarColor = ShieldBackground.toArgb()
+            window.navigationBarColor = ShieldBackground.toArgb()
+            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = false
+            WindowCompat.getInsetsController(window, view).isAppearanceLightNavigationBars = false
         }
     }
 
-    // Cap fontScale so that sp-based text doesn't grow unboundedly on devices
-    // where the user has set very large display scale (150-200%).
     val currentDensity = LocalDensity.current
     val cappedDensity = if (currentDensity.fontScale > MAX_FONT_SCALE) {
-        Density(
-            density = currentDensity.density,
-            fontScale = MAX_FONT_SCALE
-        )
-    } else {
-        currentDensity
-    }
+        Density(density = currentDensity.density, fontScale = MAX_FONT_SCALE)
+    } else currentDensity
 
     CompositionLocalProvider(LocalDensity provides cappedDensity) {
-        MaterialTheme(
-            colorScheme = colorScheme,
-            typography = Typography,
-            content = content
-        )
+        MaterialTheme(colorScheme = colorScheme, typography = Typography, content = content)
     }
 }
