@@ -28,24 +28,27 @@ class MainActivity : ComponentActivity() {
         setContent {
             CircleToSearchTheme {
                 Surface(color = MaterialTheme.colorScheme.background) {
-                    var screen by remember { mutableStateOf<ScamShieldScreen>(ScamShieldScreen.Onboarding) }
-                    var accessibilityEnabled by remember { mutableStateOf(isAccessibilityServiceEnabled(this@MainActivity)) }
+                    val initiallyEnabled = isAccessibilityServiceEnabled(this@MainActivity)
+                    var accessibilityEnabled by remember { mutableStateOf(initiallyEnabled) }
+                    var screen by remember {
+                        mutableStateOf<ScamShieldScreen>(
+                            if (initiallyEnabled) ScamShieldScreen.Home else ScamShieldScreen.Onboarding
+                        )
+                    }
 
                     DisposableEffect(Unit) {
                         val observer = LifecycleEventObserver { _, event ->
                             if (event == Lifecycle.Event.ON_RESUME) {
                                 accessibilityEnabled = isAccessibilityServiceEnabled(this@MainActivity)
-                                if (accessibilityEnabled && screen == ScamShieldScreen.Onboarding) {
-                                    screen = ScamShieldScreen.Home
+                                screen = if (accessibilityEnabled) {
+                                    if (screen == ScamShieldScreen.Onboarding) ScamShieldScreen.Home else screen
+                                } else {
+                                    ScamShieldScreen.Onboarding
                                 }
                             }
                         }
                         lifecycle.addObserver(observer)
                         onDispose { lifecycle.removeObserver(observer) }
-                    }
-
-                    if (!accessibilityEnabled && screen != ScamShieldScreen.Onboarding) {
-                        screen = ScamShieldScreen.Onboarding
                     }
 
                     Crossfade(targetState = screen, label = "scamshield-navigation") { target ->
@@ -55,11 +58,12 @@ class MainActivity : ComponentActivity() {
                             )
                             ScamShieldScreen.Home -> ScamShieldHomeScreen(
                                 onManualScan = { screen = ScamShieldScreen.ManualScan },
+                                onScreenshot = { screen = ScamShieldScreen.ScreenshotInput },
                                 onCommunity = { screen = ScamShieldScreen.Community },
-                                onSettings = { screen = ScamShieldScreen.Settings },
-                                onOcrSettings = { screen = ScamShieldScreen.OcrSettings }
+                                onSettings = { screen = ScamShieldScreen.Settings }
                             )
                             ScamShieldScreen.ManualScan -> ManualScanScreen(onBack = { screen = ScamShieldScreen.Home })
+                            ScamShieldScreen.ScreenshotInput -> ScreenshotInputScreen(onBack = { screen = ScamShieldScreen.Home })
                             ScamShieldScreen.Community -> CommunityScreen(
                                 onBack = { screen = ScamShieldScreen.Home },
                                 onReport = { screen = ScamShieldScreen.Report }
@@ -76,7 +80,7 @@ class MainActivity : ComponentActivity() {
 }
 
 private enum class ScamShieldScreen {
-    Onboarding, Home, ManualScan, Community, Report, Settings, OcrSettings
+    Onboarding, Home, ManualScan, ScreenshotInput, Community, Report, Settings, OcrSettings
 }
 
 fun isAccessibilityServiceEnabled(context: Context): Boolean {
