@@ -1,51 +1,46 @@
-/*
- *
- *  * Copyright (C) 2025 AKS-Labs (original author)
- *  *
- *  * This program is free software: you can redistribute it and/or modify
- *  * it under the terms of the GNU General Public License as published by
- *  * the Free Software Foundation, either version 3 of the License, or
- *  * (at your option) any later version.
- *  *
- *  * This program is distributed in the hope that it will be useful,
- *  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  * GNU General Public License for more details.
- *  *
- *  * You should have received a copy of the GNU General Public License
- *  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- *
- */
-
 package com.akslabs.circletosearch.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-val Purple80 = Color(0xFFD0BCFF)
-val PurpleGrey80 = Color(0xFFCCC2DC)
-val Pink80 = Color(0xFFEFB8C8)
+val ShieldBackground = Color(0xFF080612)
+val ShieldSurface = Color(0xFF110D20)
+val ShieldSurfaceRaised = Color(0xFF18112B)
+val ShieldViolet = Color(0xFF9B6CFF)
+val ShieldVioletBright = Color(0xFFC09BFF)
+val ShieldPurple = Color(0xFF7138D4)
+val ShieldBlue = Color(0xFF5B6FFF)
+val ShieldCyan = Color(0xFF58D6FF)
+val ShieldGreen = Color(0xFF43E0AE)
+val ShieldAmber = Color(0xFFFFC45C)
+val ShieldRed = Color(0xFFFF5F7A)
+val ShieldText = Color(0xFFF4F0FF)
+val ShieldMuted = Color(0xFFA49BB8)
+val ShieldDim = Color(0xFF665C79)
 
-val Purple40 = Color(0xFF6650a4)
-val PurpleGrey40 = Color(0xFF625b71)
-val Pink40 = Color(0xFF7D5260)
+// Legacy names retained so existing screens compile while sharing the ScamShield palette.
+val Purple80 = ShieldVioletBright
+val PurpleGrey80 = Color(0xFFB9AED0)
+val Pink80 = Color(0xFFFFB4C8)
+val Purple40 = ShieldPurple
+val PurpleGrey40 = Color(0xFF5D4C78)
+val Pink40 = Color(0xFF8A3F61)
 
-// Circle to Search Pastel Colors
-val PastelBlue = Color(0xFFE3F2FD)
-val PastelGreen = Color(0xFFE8F5E9)
-val PastelPeach = Color(0xFFFFF3E0)
-val PastelYellow = Color(0xFFFFFDE7)
+val PastelBlue = Color(0xFF151F38)
+val PastelGreen = Color(0xFF102A24)
+val PastelPeach = Color(0xFF2A1D18)
+val PastelYellow = Color(0xFF2A2414)
 
-val GoogleBlue = Color(0xFF4285F4)
-val GoogleRed = Color(0xFFEA4335)
-val GoogleYellow = Color(0xFFFBBC05)
-val GoogleGreen = Color(0xFF34A853)
+val GoogleBlue = ShieldBlue
+val GoogleRed = ShieldRed
+val GoogleYellow = ShieldAmber
+val GoogleGreen = ShieldGreen
 
 val OverlayGradientColors = listOf(
-    GoogleBlue,
-    GoogleRed,
-    GoogleYellow,
-    GoogleGreen,
-    GoogleBlue // Repeat first to close loop smoothly if needed
+    Color(0xFF5B2FB8),
+    ShieldViolet,
+    ShieldBlue,
+    Color(0xFF7A55E8),
+    Color(0xFF5B2FB8)
 )
 
-val ScrimColor = Color(0x99000000) // Dimmed background for bottom sheet
+val ScrimColor = Color(0xCC05030A)
