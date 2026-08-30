@@ -75,8 +75,7 @@ fun UnifiedScanScreen(onBack: () -> Unit) {
             Modifier.fillMaxSize().padding(padding).padding(20.dp).verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
-            Text("CHECK A MESSAGE, URL OR SCREENSHOT", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
-            Text("Requests are sent to the configured ScamShield REST API.", color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text("Check a Message, URL or a Screenshot", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
 
             OutlinedTextField(
                 value = text,
