@@ -10,13 +10,25 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.compose.animation.Crossfade
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Group
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Shield
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Text
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import com.akslabs.circletosearch.ui.OcrSettingsScreen
@@ -54,22 +66,55 @@ class MainActivity : ComponentActivity() {
                         onDispose { lifecycle.removeObserver(observer) }
                     }
 
-                    Crossfade(targetState = screen, label = "scamshield-navigation") { target ->
-                        when (target) {
-                            ScamShieldScreen.Onboarding -> ScamShieldOnboardingScreen { openAccessibilitySettings(this@MainActivity) }
-                            ScamShieldScreen.Home -> ScamShieldHomeScreenV2(
-                                onScan = { screen = ScamShieldScreen.ManualScan },
-                                onCommunity = { screen = ScamShieldScreen.Community },
-                                onSettings = { screen = ScamShieldScreen.Settings }
-                            )
-                            ScamShieldScreen.ManualScan -> UnifiedScanScreen { screen = ScamShieldScreen.Home }
-                            ScamShieldScreen.Community -> CommunityScreenV2(
-                                onBack = { screen = ScamShieldScreen.Home },
-                                onReport = { screen = ScamShieldScreen.Report }
-                            )
-                            ScamShieldScreen.Report -> ReportScamScreenV2 { screen = ScamShieldScreen.Community }
-                            ScamShieldScreen.Settings -> OverlaySettingsScreen { screen = ScamShieldScreen.Home }
-                            ScamShieldScreen.OcrSettings -> OcrSettingsScreen { screen = ScamShieldScreen.Settings }
+                    val showBottomNavigation = screen == ScamShieldScreen.Home ||
+                        screen == ScamShieldScreen.Community ||
+                        screen == ScamShieldScreen.Settings
+
+                    Scaffold(
+                        contentWindowInsets = WindowInsets(0, 0, 0, 0),
+                        bottomBar = {
+                            if (showBottomNavigation) {
+                                NavigationBar {
+                                    NavigationBarItem(
+                                        selected = screen == ScamShieldScreen.Home,
+                                        onClick = { screen = ScamShieldScreen.Home },
+                                        icon = { Icon(Icons.Default.Shield, contentDescription = null) },
+                                        label = { Text("Protect") }
+                                    )
+                                    NavigationBarItem(
+                                        selected = screen == ScamShieldScreen.Community,
+                                        onClick = { screen = ScamShieldScreen.Community },
+                                        icon = { Icon(Icons.Default.Group, contentDescription = null) },
+                                        label = { Text("Community") }
+                                    )
+                                    NavigationBarItem(
+                                        selected = screen == ScamShieldScreen.Settings,
+                                        onClick = { screen = ScamShieldScreen.Settings },
+                                        icon = { Icon(Icons.Default.Settings, contentDescription = null) },
+                                        label = { Text("Settings") }
+                                    )
+                                }
+                            }
+                        }
+                    ) { padding ->
+                        Surface(Modifier.padding(padding), color = MaterialTheme.colorScheme.background) {
+                            Crossfade(targetState = screen, label = "scamshield-navigation") { target ->
+                                when (target) {
+                                    ScamShieldScreen.Onboarding -> ScamShieldOnboardingScreen { openAccessibilitySettings(this@MainActivity) }
+                                    ScamShieldScreen.Home -> ScamShieldHomeScreenV2(
+                                        onScan = { screen = ScamShieldScreen.ManualScan },
+                                        onCommunity = { screen = ScamShieldScreen.Community },
+                                        onSettings = { screen = ScamShieldScreen.Settings }
+                                    )
+                                    ScamShieldScreen.ManualScan -> UnifiedScanScreen { screen = ScamShieldScreen.Home }
+                                    ScamShieldScreen.Community -> CommunityScreenV2(
+                                        onReport = { screen = ScamShieldScreen.Report }
+                                    )
+                                    ScamShieldScreen.Report -> ReportScamScreenV2 { screen = ScamShieldScreen.Community }
+                                    ScamShieldScreen.Settings -> OverlaySettingsScreen()
+                                    ScamShieldScreen.OcrSettings -> OcrSettingsScreen { screen = ScamShieldScreen.Settings }
+                                }
+                            }
                         }
                     }
                 }

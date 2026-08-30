@@ -8,6 +8,7 @@ import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -34,11 +35,7 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun OverlaySettingsScreen(
-    onBack: () -> Unit
-) {
-    // Handle system back press
-    androidx.activity.compose.BackHandler(onBack = onBack)
+fun OverlaySettingsScreen() {
     
     val context = LocalContext.current
     val configManager = remember { OverlayConfigurationManager(context) }
@@ -56,14 +53,10 @@ fun OverlaySettingsScreen(
     var backendStatus by remember { mutableStateOf<String?>(null) }
     
     Scaffold(
+        contentWindowInsets = WindowInsets(0, 0, 0, 0),
         topBar = {
             TopAppBar(
                 title = { Text("Overlay Settings", fontWeight = FontWeight.Bold) },
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
-                    }
-                },
                 actions = {
                     IconButton(onClick = { 
                         updateConfig(OverlayConfig()) // Reset
