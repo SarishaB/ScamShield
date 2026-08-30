@@ -25,7 +25,7 @@ fun Application.module() {
 
     val communityService = CommunityService(database)
     val urlService = UrlAnalysisService(config, communityService)
-    val messageService = MessageAnalysisService(communityService)
+    val messageService = MessageAnalysisService(communityService, config.gemini)
     val qrService = QrDecoderService()
     val ocrService = OcrService(config)
     val fusionService = RiskFusionService()

@@ -10,12 +10,19 @@ data class DatabaseConfig(
 )
 
 data class VirusTotalConfig(val apiKey: String)
-data class OcrConfig(val enabled: Boolean, val command: String, val language: String)
+data class OcrConfig(
+    val enabled: Boolean,
+    val apiKey: String,
+    val baseUrl: String,
+    val language: String,
+    val engine: Int
+)
 data class UploadConfig(val maxBytes: Long)
 data class SecurityConfig(val apiKey: String)
 
-data class DeepSeekConfig(
+data class GeminiConfig(
     val apiKey: String,
+    val model: String,
     val baseUrl: String
 )
 
@@ -25,7 +32,7 @@ data class AppConfig(
     val ocr: OcrConfig,
     val upload: UploadConfig,
     val security: SecurityConfig,
-    val deepSeek: DeepSeekConfig
+    val gemini: GeminiConfig
 ) {
     constructor(config: ApplicationConfig) : this(
         database = DatabaseConfig(
@@ -38,9 +45,11 @@ data class AppConfig(
             config.property("scamshield.virustotal.apiKey").getString()
         ),
         ocr = OcrConfig(
-            config.property("scamshield.ocr.enabled").getString().toBoolean(),
-            config.property("scamshield.ocr.command").getString(),
-            config.property("scamshield.ocr.language").getString()
+            enabled = config.property("scamshield.ocr.enabled").getString().toBoolean(),
+            apiKey = config.property("scamshield.ocr.apiKey").getString(),
+            baseUrl = config.property("scamshield.ocr.baseUrl").getString(),
+            language = config.property("scamshield.ocr.language").getString(),
+            engine = config.property("scamshield.ocr.engine").getString().toInt()
         ),
         upload = UploadConfig(
             config.property("scamshield.upload.maxBytes").getString().toLong()
@@ -48,10 +57,10 @@ data class AppConfig(
         security = SecurityConfig(
             config.property("scamshield.security.apiKey").getString()
         ),
-
-        deepSeek = DeepSeekConfig(
-            apiKey = config.property("scamshield.deepseek.apiKey").getString(),
-            baseUrl = config.property("scamshield.deepseek.baseUrl").getString()
+        gemini = GeminiConfig(
+            apiKey = config.property("scamshield.gemini.apiKey").getString(),
+            model = config.property("scamshield.gemini.model").getString(),
+            baseUrl = config.property("scamshield.gemini.baseUrl").getString()
         )
     )
 }

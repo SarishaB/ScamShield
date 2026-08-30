@@ -93,10 +93,7 @@ fun Application.configureRoutes(
         post("/api/v1/analyze/screenshot") {
             requireApiKey(call, config)
 
-            val tempFile = File.createTempFile(
-                "scamshield-upload-",
-                ".png"
-            )
+            var tempFile: File? = null
 
             try {
 
@@ -115,20 +112,39 @@ fun Application.configureRoutes(
 
                             if (
                                 part.name == "screenshot" ||
-                                part.name == "image"
+                                part.name == "image" ||
+                                part.name == "file"
                             ) {
 
                                 originalFileName =
                                     part.originalFileName
 
-                                // Copy uploaded file directly
-                                // to our temporary file.
+                                val extension = originalFileName
+                                    ?.substringAfterLast('.', "")
+                                    ?.lowercase()
+                                    ?.let { ext ->
+                                        when (ext) {
+                                            "png", "jpg", "jpeg", "gif", "bmp", "tif", "tiff", "webp" -> ".${ext}"
+                                            else -> ".png"
+                                        }
+                                    }
+                                    ?: ".png"
+
+                                tempFile?.delete()
+                                tempFile = File.createTempFile(
+                                    "scamshield-upload-",
+                                    extension
+                                )
+
+                                // Copy uploaded image directly to a temporary file
+                                // using the same image extension as the original upload
+                                // whenever it is a supported image type.
                                 part.provider().copyAndClose(
-                                    tempFile.writeChannel()
+                                    tempFile!!.writeChannel()
                                 )
 
                                 receivedBytes =
-                                    tempFile.length()
+                                    tempFile!!.length()
 
                                 if (
                                     receivedBytes >
@@ -156,7 +172,7 @@ fun Application.configureRoutes(
                         HttpStatusCode.BadRequest,
                         ErrorResponse(
                             "missing_screenshot",
-                            "Send a multipart field named 'screenshot'."
+                            "Send a multipart field named 'screenshot', 'image', or 'file'."
                         )
                     )
                 }
@@ -165,8 +181,11 @@ fun Application.configureRoutes(
                 // OCR
                 // -------------------------------------------------
 
+                val uploadedFile = tempFile!!
+                println("[ScamShield][OCR] Screenshot received: ${originalFileName ?: uploadedFile.name} (${uploadedFile.length()} bytes)")
                 val extractedText =
-                    ocrService.extractText(tempFile)
+                    ocrService.extractText(uploadedFile)
+                println("[ScamShield][OCR] Route extracted text length: ${extractedText.length}")
 
                 // -------------------------------------------------
                 // Extract URLs from OCR text
@@ -188,7 +207,7 @@ fun Application.configureRoutes(
                 // -------------------------------------------------
 
                 val qrRaw =
-                    qrService.decode(tempFile)
+                    qrService.decode(tempFile!!)
 
                 val qrResults =
                     if (qrRaw != null) {
@@ -265,7 +284,7 @@ fun Application.configureRoutes(
             } finally {
 
                 // Always delete temporary screenshot.
-                tempFile.delete()
+                tempFile?.delete()
             }
         }
 
