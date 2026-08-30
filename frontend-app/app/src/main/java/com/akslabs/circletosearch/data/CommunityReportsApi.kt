@@ -1,5 +1,6 @@
 package com.akslabs.circletosearch.data
 
+import android.content.Context
 import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -23,8 +24,8 @@ object CommunityReportsApi {
         val total: Long
     )
 
-    suspend fun getReports(): List<CommunityPost> = withContext(Dispatchers.IO) {
-        val endpoint = ScamDetectionApi.API_URL.substringBeforeLast("/") + "/reports"
+    suspend fun getReports(context: Context): List<CommunityPost> = withContext(Dispatchers.IO) {
+        val endpoint = ScamDetectionApi.getBaseUrl(context) + "/api/v1/reports"
         val connection = (URL(endpoint).openConnection() as HttpURLConnection).apply {
             requestMethod = "GET"
             connectTimeout = 10_000
