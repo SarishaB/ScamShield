@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.provider.Settings
 import android.widget.Toast
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.compose.animation.Crossfade
 import androidx.compose.material3.MaterialTheme
@@ -34,6 +35,18 @@ class MainActivity : ComponentActivity() {
                         mutableStateOf<ScamShieldScreen>(
                             if (initiallyEnabled) ScamShieldScreen.Home else ScamShieldScreen.Onboarding
                         )
+                    }
+
+                    BackHandler(enabled = screen != ScamShieldScreen.Home && screen != ScamShieldScreen.Onboarding) {
+                        screen = when (screen) {
+                            ScamShieldScreen.Report -> ScamShieldScreen.Community
+                            ScamShieldScreen.OcrSettings -> ScamShieldScreen.Settings
+                            ScamShieldScreen.Community,
+                            ScamShieldScreen.ManualScan,
+                            ScamShieldScreen.ScreenshotInput,
+                            ScamShieldScreen.Settings -> ScamShieldScreen.Home
+                            else -> ScamShieldScreen.Home
+                        }
                     }
 
                     DisposableEffect(Unit) {
