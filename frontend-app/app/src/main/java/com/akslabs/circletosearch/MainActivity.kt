@@ -103,8 +103,7 @@ class MainActivity : ComponentActivity() {
                                     ScamShieldScreen.Onboarding -> ScamShieldOnboardingScreen { openAccessibilitySettings(this@MainActivity) }
                                     ScamShieldScreen.Home -> ScamShieldHomeScreenV2(
                                         onScan = { screen = ScamShieldScreen.ManualScan },
-                                        onCommunity = { screen = ScamShieldScreen.Community },
-                                        onSettings = { screen = ScamShieldScreen.Settings }
+                                        onCommunity = { screen = ScamShieldScreen.Community }
                                     )
                                     ScamShieldScreen.ManualScan -> UnifiedScanScreen { screen = ScamShieldScreen.Home }
                                     ScamShieldScreen.Community -> CommunityScreenV2(

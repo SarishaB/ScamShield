@@ -35,7 +35,7 @@ private val Inter = FontFamily(
 
 // ScamShield typography: Space Grotesk for visual hierarchy/headings,
 // Inter for readable UI/body copy.
-val Typography = Typography(
+val ScamShieldTypography = Typography(
     displayLarge = TextStyle(fontFamily = SpaceGrotesk, fontWeight = FontWeight.Bold, fontSize = 36.sp, lineHeight = 42.sp, letterSpacing = (-0.6).sp),
     displayMedium = TextStyle(fontFamily = SpaceGrotesk, fontWeight = FontWeight.Bold, fontSize = 30.sp, lineHeight = 36.sp, letterSpacing = (-0.4).sp),
     displaySmall = TextStyle(fontFamily = SpaceGrotesk, fontWeight = FontWeight.Bold, fontSize = 27.sp, lineHeight = 33.sp),

@@ -2,7 +2,6 @@ package com.akslabs.circletosearch.ui.theme
 
 import android.app.Activity
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Typography
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
@@ -95,7 +94,7 @@ fun CircleToSearchTheme(
     CompositionLocalProvider(LocalDensity provides cappedDensity) {
         MaterialTheme(
             colorScheme = colorScheme,
-            typography = Typography(),
+            typography = ScamShieldTypography,
             content = content
         )
     }

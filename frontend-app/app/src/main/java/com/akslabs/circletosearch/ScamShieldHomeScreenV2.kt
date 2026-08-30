@@ -17,12 +17,9 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowForward
-import androidx.compose.material.icons.filled.ContentPaste
 import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.Link
 import androidx.compose.material.icons.filled.TextFields
-import androidx.compose.material.icons.filled.Group
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Shield
 import androidx.compose.material.icons.filled.VerifiedUser
 import androidx.compose.material3.AssistChip
@@ -38,7 +35,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -52,7 +48,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -60,7 +55,6 @@ import androidx.compose.ui.unit.dp
 fun ScamShieldHomeScreenV2(
     onScan: () -> Unit,
     onCommunity: () -> Unit,
-    onSettings: () -> Unit
 ) {
     val context = LocalContext.current
     val accessibilityEnabled = remember { mutableStateOf(isAccessibilityServiceEnabled(context)) }
@@ -89,11 +83,6 @@ fun ScamShieldHomeScreenV2(
                             tint = MaterialTheme.colorScheme.onPrimaryContainer,
                             modifier = Modifier.padding(9.dp)
                         )
-                    }
-                },
-                actions = {
-                    IconButton(onClick = onSettings) {
-                        Icon(Icons.Default.Settings, contentDescription = "Settings")
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -125,17 +114,6 @@ fun ScamShieldHomeScreenV2(
                     openAccessibilitySettings(context)
                     accessibilityEnabled.value = true
                 }
-            )
-
-            Text(
-                "Check something",
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.SemiBold
-            )
-            Text(
-                "Scan a message, link, screenshot or QR code before you trust it.",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
 
             ElevatedCard(
@@ -186,16 +164,6 @@ fun ScamShieldHomeScreenV2(
                         Icon(Icons.Default.ArrowForward, contentDescription = null, modifier = Modifier.size(18.dp))
                     }
                 }
-            }
-
-            Text(
-                "Quick actions",
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.SemiBold
-            )
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                QuickActionCard("Paste text", "Message or URL", Icons.Default.ContentPaste, onScan, Modifier.weight(1f))
-                QuickActionCard("Community", "See reports", Icons.Default.Group, onCommunity, Modifier.weight(1f))
             }
 
             FloatingAccessCard(
@@ -274,7 +242,7 @@ private fun ProtectionCard(enabled: Boolean, onEnable: () -> Unit) {
             if (enabled) {
                 AssistChip(
                     onClick = { },
-                    label = { Text("Active") },
+                    label = { Text("Active", modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp)) },
                     leadingIcon = { Icon(Icons.Default.VerifiedUser, null, Modifier.size(16.dp)) },
                     colors = AssistChipDefaults.assistChipColors(
                         containerColor = MaterialTheme.colorScheme.primaryContainer,
@@ -303,25 +271,6 @@ private fun ScanChip(label: String, icon: ImageVector) {
         leadingIcon = { Icon(icon, contentDescription = null, modifier = Modifier.size(16.dp)) },
         label = { Text(label) }
     )
-}
-
-@Composable
-private fun QuickActionCard(
-    title: String,
-    subtitle: String,
-    icon: ImageVector,
-    onClick: () -> Unit,
-    modifier: Modifier
-) {
-    OutlinedCard(onClick = onClick, modifier = modifier) {
-        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            Surface(shape = MaterialTheme.shapes.medium, color = MaterialTheme.colorScheme.secondaryContainer) {
-                Icon(icon, contentDescription = null, tint = MaterialTheme.colorScheme.onSecondaryContainer, modifier = Modifier.padding(9.dp).size(22.dp))
-            }
-            Text(title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
-            Text(subtitle, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 2, overflow = TextOverflow.Ellipsis)
-        }
-    }
 }
 
 @Composable

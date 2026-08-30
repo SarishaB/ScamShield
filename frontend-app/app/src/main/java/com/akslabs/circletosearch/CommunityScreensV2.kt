@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -61,6 +62,10 @@ import com.akslabs.circletosearch.data.CommunityReportsApi
 import com.akslabs.circletosearch.data.ScamDetectionApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.time.Instant
+import java.time.OffsetDateTime
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -205,7 +210,11 @@ fun CommunityScreenV2(onReport: () -> Unit) {
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
-                                TextButton(onClick = { infoExpanded = !infoExpanded }) {
+                                TextButton(
+                                    onClick = { infoExpanded = !infoExpanded },
+                                    modifier = Modifier.heightIn(min = 0.dp),
+                                    contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 0.dp, vertical = 2.dp)
+                                ) {
                                     Text(if (infoExpanded) "Hide details" else "Learn more")
                                 }
                                 if (infoExpanded) {
@@ -213,7 +222,11 @@ fun CommunityScreenV2(onReport: () -> Unit) {
                                         "Use the official portal to report suspected fraud calls, SMS and WhatsApp messages.",
                                         style = MaterialTheme.typography.bodySmall
                                     )
-                                    TextButton(onClick = { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://sancharsaathi.gov.in/sfc/"))) }) {
+                                    TextButton(
+                                        onClick = { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://sancharsaathi.gov.in/sfc/"))) },
+                                        modifier = Modifier.heightIn(min = 0.dp),
+                                        contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 0.dp, vertical = 2.dp)
+                                    ) {
                                         Text("Open Chakshu")
                                     }
                                 }
@@ -260,7 +273,22 @@ private fun CommunityReportCard(report: CommunityReportsApi.CommunityPost) {
     }
 }
 
-private fun formatReportTime(value: String): String = value.replace("T", " ").removeSuffix("Z")
+private fun formatReportTime(value: String): String {
+    val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd • HH:mm:ss")
+    return try {
+        Instant.parse(value)
+            .atZone(ZoneId.systemDefault())
+            .format(formatter)
+    } catch (_: Exception) {
+        try {
+            OffsetDateTime.parse(value)
+                .atZoneSameInstant(ZoneId.systemDefault())
+                .format(formatter)
+        } catch (_: Exception) {
+            value
+        }
+    }
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

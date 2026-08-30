@@ -7,9 +7,7 @@
         <item name="android:navigationBarColor">@color/scamshield_background</item>
         <item name="android:statusBarColor">@color/scamshield_background</item>
         <item name="android:windowLightStatusBar">false</item>
-        <item name="android:windowSplashScreenBackground">@color/scamshield_background</item>
-        <item name="android:windowSplashScreenAnimatedIcon">@drawable/ic_scamshield_logo</item>
-        <item name="android:windowSplashScreenIconBackgroundColor">@color/scamshield_background</item>
+        <item name="android:windowDisablePreview">true</item>
     </style>
 
     <style name="Theme.CircleToSearch.Transparent" parent="Theme.CircleToSearch">
