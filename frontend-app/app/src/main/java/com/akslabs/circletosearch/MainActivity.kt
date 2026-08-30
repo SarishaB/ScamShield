@@ -1,8 +1,3 @@
-/*
- * ScamShield frontend redesign.
- * The original Circle-to-Search setup flow is preserved in the repository history;
- * this entry point now presents ScamShield as the primary product experience.
- */
 package com.akslabs.circletosearch
 
 import android.content.ComponentName
@@ -16,10 +11,13 @@ import androidx.activity.compose.setContent
 import androidx.compose.animation.Crossfade
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import com.akslabs.circletosearch.ui.OcrSettingsScreen
 import com.akslabs.circletosearch.ui.OverlaySettingsScreen
 import com.akslabs.circletosearch.ui.theme.CircleToSearchTheme
@@ -30,10 +28,31 @@ class MainActivity : ComponentActivity() {
         setContent {
             CircleToSearchTheme {
                 Surface(color = MaterialTheme.colorScheme.background) {
-                    var screen by remember { mutableStateOf<ScamShieldScreen>(ScamShieldScreen.Home) }
+                    var screen by remember { mutableStateOf<ScamShieldScreen>(ScamShieldScreen.Onboarding) }
+                    var accessibilityEnabled by remember { mutableStateOf(isAccessibilityServiceEnabled(this@MainActivity)) }
+
+                    DisposableEffect(Unit) {
+                        val observer = LifecycleEventObserver { _, event ->
+                            if (event == Lifecycle.Event.ON_RESUME) {
+                                accessibilityEnabled = isAccessibilityServiceEnabled(this@MainActivity)
+                                if (accessibilityEnabled && screen == ScamShieldScreen.Onboarding) {
+                                    screen = ScamShieldScreen.Home
+                                }
+                            }
+                        }
+                        lifecycle.addObserver(observer)
+                        onDispose { lifecycle.removeObserver(observer) }
+                    }
+
+                    if (!accessibilityEnabled && screen != ScamShieldScreen.Onboarding) {
+                        screen = ScamShieldScreen.Onboarding
+                    }
 
                     Crossfade(targetState = screen, label = "scamshield-navigation") { target ->
                         when (target) {
+                            ScamShieldScreen.Onboarding -> ScamShieldOnboardingScreen(
+                                onEnable = { openAccessibilitySettings(this@MainActivity) }
+                            )
                             ScamShieldScreen.Home -> ScamShieldHomeScreen(
                                 onManualScan = { screen = ScamShieldScreen.ManualScan },
                                 onCommunity = { screen = ScamShieldScreen.Community },
@@ -41,7 +60,11 @@ class MainActivity : ComponentActivity() {
                                 onOcrSettings = { screen = ScamShieldScreen.OcrSettings }
                             )
                             ScamShieldScreen.ManualScan -> ManualScanScreen(onBack = { screen = ScamShieldScreen.Home })
-                            ScamShieldScreen.Community -> CommunityScreen(onBack = { screen = ScamShieldScreen.Home })
+                            ScamShieldScreen.Community -> CommunityScreen(
+                                onBack = { screen = ScamShieldScreen.Home },
+                                onReport = { screen = ScamShieldScreen.Report }
+                            )
+                            ScamShieldScreen.Report -> ReportScamScreen(onBack = { screen = ScamShieldScreen.Community })
                             ScamShieldScreen.Settings -> OverlaySettingsScreen(onBack = { screen = ScamShieldScreen.Home })
                             ScamShieldScreen.OcrSettings -> OcrSettingsScreen(onBack = { screen = ScamShieldScreen.Settings })
                         }
@@ -53,7 +76,7 @@ class MainActivity : ComponentActivity() {
 }
 
 private enum class ScamShieldScreen {
-    Home, ManualScan, Community, Settings, OcrSettings
+    Onboarding, Home, ManualScan, Community, Report, Settings, OcrSettings
 }
 
 fun isAccessibilityServiceEnabled(context: Context): Boolean {
