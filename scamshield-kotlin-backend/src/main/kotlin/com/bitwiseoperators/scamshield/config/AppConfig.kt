@@ -14,12 +14,18 @@ data class OcrConfig(val enabled: Boolean, val command: String, val language: St
 data class UploadConfig(val maxBytes: Long)
 data class SecurityConfig(val apiKey: String)
 
+data class DeepSeekConfig(
+    val apiKey: String,
+    val baseUrl: String
+)
+
 data class AppConfig(
     val database: DatabaseConfig,
     val virusTotal: VirusTotalConfig,
     val ocr: OcrConfig,
     val upload: UploadConfig,
-    val security: SecurityConfig
+    val security: SecurityConfig,
+    val deepSeek: DeepSeekConfig
 ) {
     constructor(config: ApplicationConfig) : this(
         database = DatabaseConfig(
@@ -41,6 +47,11 @@ data class AppConfig(
         ),
         security = SecurityConfig(
             config.property("scamshield.security.apiKey").getString()
+        ),
+
+        deepSeek = DeepSeekConfig(
+            apiKey = config.property("scamshield.deepseek.apiKey").getString(),
+            baseUrl = config.property("scamshield.deepseek.baseUrl").getString()
         )
     )
 }
