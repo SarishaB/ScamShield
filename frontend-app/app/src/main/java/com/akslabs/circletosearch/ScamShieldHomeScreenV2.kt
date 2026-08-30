@@ -18,8 +18,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -67,26 +67,16 @@ fun ScamShieldHomeScreenV2(
                     }
                 },
                 actions = { IconButton(onClick = onSettings) { Icon(Icons.Default.Settings, "Settings", tint = ShieldMuted) } },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = ShieldBackground,
-                    titleContentColor = ShieldText
-                )
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = ShieldBackground, titleContentColor = ShieldText)
             )
         }
     ) { padding ->
         Column(
-            Modifier
-                .fillMaxSize()
-                .padding(padding)
-                .padding(horizontal = 20.dp)
-                .verticalScroll(rememberScrollState()),
+            Modifier.fillMaxSize().padding(padding).padding(horizontal = 20.dp).verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(18.dp)
         ) {
             Spacer(Modifier.height(2.dp))
-            ProtectionCardV2(
-                enabled = accessibilityEnabled.value,
-                onEnable = { openAccessibilitySettings(context); accessibilityEnabled.value = true }
-            )
+            ProtectionCardV2(enabled = accessibilityEnabled.value, onEnable = { openAccessibilitySettings(context); accessibilityEnabled.value = true })
 
             SectionLabel("CHECK SOMETHING SUSPICIOUS")
             ElevatedCard(
@@ -97,29 +87,17 @@ fun ScamShieldHomeScreenV2(
                 elevation = CardDefaults.elevatedCardElevation(defaultElevation = 0.dp)
             ) {
                 Column(
-                    Modifier
-                        .fillMaxWidth()
-                        .border(1.dp, ShieldViolet.copy(alpha = 0.18f), RoundedCornerShape(24.dp))
-                        .padding(20.dp),
+                    Modifier.fillMaxWidth().border(1.dp, ShieldViolet.copy(alpha = 0.18f), RoundedCornerShape(24.dp)).padding(20.dp),
                     verticalArrangement = Arrangement.spacedBy(14.dp)
                 ) {
                     Text("Paste anything suspicious", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold, color = ShieldText)
-                    Text(
-                        "URLs, copied messages, screenshots or files can be checked here.",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = ShieldMuted
-                    )
+                    Text("URLs, copied messages, screenshots or files can be checked here.", style = MaterialTheme.typography.bodyMedium, color = ShieldMuted)
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        ScanTypeLabel("TEXT")
-                        ScanTypeLabel("SCREENSHOT")
-                        ScanTypeLabel("FILE")
+                        ScanTypeLabel("TEXT"); ScanTypeLabel("SCREENSHOT"); ScanTypeLabel("FILE")
                     }
-                    Button(
-                        onClick = onScan,
-                        modifier = Modifier.fillMaxWidth().height(52.dp),
-                        shape = RoundedCornerShape(16.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = ShieldViolet, contentColor = ColorOnViolet)
-                    ) { Text("OPEN ANALYZER", fontWeight = FontWeight.Bold, letterSpacing = 0.7.sp) }
+                    Button(onClick = onScan, modifier = Modifier.fillMaxWidth().height(52.dp), shape = RoundedCornerShape(16.dp), colors = ButtonDefaults.buttonColors(containerColor = ShieldViolet, contentColor = ShieldBackground)) {
+                        Text("OPEN ANALYZER", fontWeight = FontWeight.Bold, letterSpacing = 0.7.sp)
+                    }
                 }
             }
 
@@ -131,15 +109,8 @@ fun ScamShieldHomeScreenV2(
                 colors = CardDefaults.elevatedCardColors(containerColor = ShieldSurfaceRaised),
                 elevation = CardDefaults.elevatedCardElevation(defaultElevation = 0.dp)
             ) {
-                Row(
-                    Modifier.fillMaxWidth().padding(18.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Surface(
-                        shape = RoundedCornerShape(14.dp),
-                        color = ShieldPurple.copy(alpha = 0.28f),
-                        border = androidx.compose.foundation.BorderStroke(1.dp, ShieldViolet.copy(alpha = 0.22f))
-                    ) {
+                Row(Modifier.fillMaxWidth().padding(18.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Surface(shape = RoundedCornerShape(14.dp), color = ShieldPurple.copy(alpha = 0.28f), border = androidx.compose.foundation.BorderStroke(1.dp, ShieldViolet.copy(alpha = 0.22f))) {
                         Icon(Icons.Default.Groups, null, tint = ShieldVioletBright, modifier = Modifier.padding(11.dp).size(25.dp))
                     }
                     Spacer(Modifier.width(14.dp))
@@ -150,13 +121,10 @@ fun ScamShieldHomeScreenV2(
                     Icon(Icons.Default.ArrowForward, null, tint = ShieldVioletBright)
                 }
             }
-
             Spacer(Modifier.height(10.dp))
         }
     }
 }
-
-private val ColorOnViolet = ShieldBackground
 
 @Composable
 private fun SectionLabel(text: String) {
@@ -165,26 +133,13 @@ private fun SectionLabel(text: String) {
 
 @Composable
 private fun ProtectionCardV2(enabled: Boolean, onEnable: () -> Unit) {
-    ElevatedCard(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(26.dp),
-        colors = CardDefaults.elevatedCardColors(containerColor = ShieldSurface),
-        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 0.dp)
-    ) {
+    ElevatedCard(modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(26.dp), colors = CardDefaults.elevatedCardColors(containerColor = ShieldSurface), elevation = CardDefaults.elevatedCardElevation(defaultElevation = 0.dp)) {
         Box(
-            Modifier
-                .fillMaxWidth()
-                .background(Brush.linearGradient(listOf(ShieldPurple.copy(alpha = 0.26f), ShieldSurface, ShieldSurface)))
-                .border(1.dp, ShieldViolet.copy(alpha = 0.22f), RoundedCornerShape(26.dp))
-                .padding(20.dp)
+            Modifier.fillMaxWidth().background(Brush.linearGradient(listOf(ShieldPurple.copy(alpha = 0.26f), ShieldSurface, ShieldSurface))).border(1.dp, ShieldViolet.copy(alpha = 0.22f), RoundedCornerShape(26.dp)).padding(20.dp)
         ) {
             Column(verticalArrangement = Arrangement.spacedBy(15.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Surface(
-                        shape = RoundedCornerShape(18.dp),
-                        color = ShieldViolet.copy(alpha = 0.15f),
-                        border = androidx.compose.foundation.BorderStroke(1.dp, ShieldViolet.copy(alpha = 0.35f))
-                    ) {
+                    Surface(shape = RoundedCornerShape(18.dp), color = ShieldViolet.copy(alpha = 0.15f), border = androidx.compose.foundation.BorderStroke(1.dp, ShieldViolet.copy(alpha = 0.35f))) {
                         Icon(Icons.Default.VerifiedUser, null, tint = ShieldVioletBright, modifier = Modifier.padding(13.dp).size(30.dp))
                     }
                     Spacer(Modifier.width(15.dp))
@@ -192,22 +147,12 @@ private fun ProtectionCardV2(enabled: Boolean, onEnable: () -> Unit) {
                         Text("PROTECTION STATUS", style = MaterialTheme.typography.labelMedium, color = ShieldMuted, letterSpacing = 1.2.sp)
                         Text(if (enabled) "Protected" else "Setup required", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold, color = ShieldText)
                     }
-                    if (enabled) {
-                        Surface(shape = RoundedCornerShape(50), color = ShieldGreen.copy(alpha = 0.13f)) {
-                            Text("ACTIVE", modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp), color = ShieldGreen, style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold, letterSpacing = 0.8.sp)
-                        }
+                    if (enabled) Surface(shape = RoundedCornerShape(50), color = ShieldGreen.copy(alpha = 0.13f)) {
+                        Text("ACTIVE", modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp), color = ShieldGreen, style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold, letterSpacing = 0.8.sp)
                     }
                 }
-                Text(
-                    if (enabled) "Your in-context ScamShield protection is ready." else "Enable ScamShield accessibility access to scan suspicious content from other apps.",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = ShieldMuted
-                )
-                if (!enabled) {
-                    Button(onClick = onEnable, modifier = Modifier.fillMaxWidth().height(50.dp), shape = RoundedCornerShape(15.dp)) {
-                        Text("ENABLE SCAMSHIELD", fontWeight = FontWeight.Bold)
-                    }
-                }
+                Text(if (enabled) "Your in-context ScamShield protection is ready." else "Enable ScamShield accessibility access to scan suspicious content from other apps.", style = MaterialTheme.typography.bodyMedium, color = ShieldMuted)
+                if (!enabled) Button(onClick = onEnable, modifier = Modifier.fillMaxWidth().height(50.dp), shape = RoundedCornerShape(15.dp)) { Text("ENABLE SCAMSHIELD", fontWeight = FontWeight.Bold) }
             }
         }
     }
@@ -215,12 +160,7 @@ private fun ProtectionCardV2(enabled: Boolean, onEnable: () -> Unit) {
 
 @Composable
 private fun RowScope.ScanTypeLabel(label: String) {
-    Surface(
-        shape = RoundedCornerShape(12.dp),
-        color = ShieldSurfaceRaised,
-        border = androidx.compose.foundation.BorderStroke(1.dp, ShieldDim.copy(alpha = 0.3f)),
-        modifier = Modifier.weight(1f)
-    ) {
+    Surface(shape = RoundedCornerShape(12.dp), color = ShieldSurfaceRaised, border = androidx.compose.foundation.BorderStroke(1.dp, ShieldDim.copy(alpha = 0.3f)), modifier = Modifier.weight(1f)) {
         Text(label, modifier = Modifier.padding(vertical = 9.dp).fillMaxWidth(), textAlign = TextAlign.Center, style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold, color = ShieldMuted, letterSpacing = 0.7.sp)
     }
 }
