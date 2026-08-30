@@ -12,11 +12,13 @@ import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.WarningAmber
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import kotlinx.coroutines.launch
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.akslabs.circletosearch.data.ScamDetectionApi
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
