@@ -16,7 +16,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -41,6 +40,7 @@ fun ScamShieldOnboardingScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
+
             Surface(
                 shape = MaterialTheme.shapes.extraLarge,
                 color = MaterialTheme.colorScheme.primaryContainer
@@ -55,7 +55,7 @@ fun ScamShieldOnboardingScreen(
                 )
             }
 
-            Spacer(Modifier.size(28.dp))
+            Spacer(Modifier.size(24.dp))
 
             Text(
                 text = "Welcome to ScamShield",
@@ -64,7 +64,7 @@ fun ScamShieldOnboardingScreen(
                 textAlign = TextAlign.Center
             )
 
-            Spacer(Modifier.size(10.dp))
+            Spacer(Modifier.size(8.dp))
 
             Text(
                 text = "Protect yourself from suspicious messages, links and screenshots directly while you use other apps.",
@@ -73,23 +73,23 @@ fun ScamShieldOnboardingScreen(
                 textAlign = TextAlign.Center
             )
 
-            Spacer(Modifier.size(28.dp))
+            Spacer(Modifier.size(24.dp))
 
             OnboardingFeatureRow(
                 icon = Icons.Default.Security,
                 title = "Scan in context",
-                description = "Use the ScamShield overlay when something looks suspicious."
+                description = "Use ScamShield when something on your screen looks suspicious."
             )
 
-            Spacer(Modifier.size(14.dp))
+            Spacer(Modifier.size(12.dp))
 
             OnboardingFeatureRow(
                 icon = Icons.Default.VerifiedUser,
                 title = "Privacy-first access",
-                description = "Accessibility access lets ScamShield inspect visible on-screen content."
+                description = "Accessibility access allows ScamShield to inspect visible on-screen content only when you invoke it."
             )
 
-            Spacer(Modifier.size(30.dp))
+            Spacer(Modifier.size(28.dp))
 
             Button(
                 onClick = onEnable,
@@ -97,17 +97,10 @@ fun ScamShieldOnboardingScreen(
                 shape = MaterialTheme.shapes.large,
                 contentPadding = ButtonDefaults.ContentPadding
             ) {
-                Text("Enable ScamShield")
-            }
-
-            Spacer(Modifier.size(10.dp))
-
-            OutlinedButton(
-                onClick = onEnable,
-                modifier = Modifier.fillMaxWidth(),
-                shape = MaterialTheme.shapes.large
-            ) {
-                Text("Open Accessibility Settings")
+                Text(
+                    text = "Enable ScamShield",
+                    fontWeight = FontWeight.SemiBold
+                )
             }
         }
     }
@@ -131,19 +124,25 @@ private fun OnboardingFeatureRow(
                 imageVector = icon,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.onSecondaryContainer,
-                modifier = Modifier.padding(10.dp).size(22.dp)
+                modifier = Modifier
+                    .padding(10.dp)
+                    .size(22.dp)
             )
         }
 
-        Column(modifier = Modifier.padding(start = 14.dp)) {
+        Column(
+            modifier = Modifier.padding(start = 14.dp)
+        ) {
             Text(
-                title,
+                text = title,
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.SemiBold
             )
+
             Spacer(Modifier.size(2.dp))
+
             Text(
-                description,
+                text = description,
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
