@@ -243,7 +243,7 @@ https://github.com/user-attachments/assets/8557cb96-0606-4298-af21-839b075df97a
 
 ---
 
-## 🙌 Acknowledgements
+## Acknowledgements
 
 ScamShield uses and builds on open-source technologies including:
 
