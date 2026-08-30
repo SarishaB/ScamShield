@@ -9,8 +9,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.Groups
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.WarningAmber
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -41,7 +43,11 @@ fun CommunityScreenV2(onBack: () -> Unit, onReport: () -> Unit) {
     var expanded by remember { mutableStateOf(false) }
     var reports by remember { mutableStateOf<List<CommunityReportsApi.CommunityPost>>(emptyList()) }
     var loadError by remember { mutableStateOf<String?>(null) }
+    var searchQuery by remember { mutableStateOf("") }
+    var selectedType by remember { mutableStateOf("ALL") }
+    var filterExpanded by remember { mutableStateOf(false) }
     val context = LocalContext.current
+    val filterOptions = listOf("ALL", "URL", "MESSAGE", "QR", "UPI")
 
     LaunchedEffect(Unit) {
         while (true) {
@@ -55,20 +61,93 @@ fun CommunityScreenV2(onBack: () -> Unit, onReport: () -> Unit) {
         }
     }
 
+    val filteredReports = remember(reports, searchQuery, selectedType) {
+        val query = searchQuery.trim().lowercase()
+        reports.filter { report ->
+            val matchesType = selectedType == "ALL" || report.type.equals(selectedType, ignoreCase = true)
+            val matchesSearch = query.isBlank() || listOfNotNull(
+                report.indicator,
+                report.category,
+                report.description,
+                report.type
+            ).any { it.contains(query, ignoreCase = true) }
+            matchesType && matchesSearch
+        }
+    }
+
     Scaffold(containerColor = ShieldBackground, topBar = {
         TopAppBar(title = { Text("COMMUNITY", fontWeight = FontWeight.Bold, letterSpacing = 1.1.sp) }, navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.Default.ArrowBack, "Back", tint = ShieldMuted) } }, colors = TopAppBarDefaults.topAppBarColors(containerColor = ShieldBackground, titleContentColor = ShieldText))
     }) { padding ->
         Column(Modifier.fillMaxSize().padding(padding).padding(horizontal = 20.dp).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             Spacer(Modifier.height(4.dp))
-            Text("Recent scam reports", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = ShieldText)
-            Text("See what people are reporting and help others stay ahead of active scams. Updates every 30 seconds.", style = MaterialTheme.typography.bodyMedium, color = ShieldMuted)
+
+            Button(onClick = onReport, modifier = Modifier.fillMaxWidth().height(50.dp), shape = RoundedCornerShape(15.dp)) {
+                Text("REPORT A SCAM", fontWeight = FontWeight.Bold, letterSpacing = 0.6.sp)
+            }
+
+            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                OutlinedTextField(
+                    value = searchQuery,
+                    onValueChange = { searchQuery = it },
+                    placeholder = { Text("Search reports, indicators or keywords...") },
+                    leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Search", tint = ShieldMuted) },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                    shape = RoundedCornerShape(15.dp)
+                )
+                Spacer(Modifier.width(8.dp))
+                Box {
+                    OutlinedButton(
+                        onClick = { filterExpanded = true },
+                        modifier = Modifier.height(56.dp),
+                        shape = RoundedCornerShape(15.dp),
+                        contentPadding = PaddingValues(horizontal = 13.dp)
+                    ) {
+                        Icon(Icons.Default.FilterList, contentDescription = "Filter")
+                    }
+                    DropdownMenu(
+                        expanded = filterExpanded,
+                        onDismissRequest = { filterExpanded = false }
+                    ) {
+                        filterOptions.forEach { option ->
+                            DropdownMenuItem(
+                                text = {
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        Text(option, fontWeight = if (selectedType == option) FontWeight.Bold else FontWeight.Normal)
+                                        if (selectedType == option) {
+                                            Spacer(Modifier.width(8.dp))
+                                            Text("✓", color = ShieldVioletBright, fontWeight = FontWeight.Bold)
+                                        }
+                                    }
+                                },
+                                onClick = {
+                                    selectedType = option
+                                    filterExpanded = false
+                                }
+                            )
+                        }
+                    }
+                }
+            }
+
+            Text(
+                if (searchQuery.isBlank() && selectedType == "ALL") "${reports.size} REPORTS" else "${filteredReports.size} MATCHING REPORTS",
+                style = MaterialTheme.typography.labelLarge,
+                fontWeight = FontWeight.Bold,
+                color = ShieldMuted,
+                letterSpacing = 0.8.sp
+            )
+
             loadError?.let { Text(it, style = MaterialTheme.typography.bodySmall, color = ShieldRed) }
+
             if (reports.isEmpty() && loadError == null) {
                 Text("No community reports yet.", color = ShieldMuted)
+            } else if (filteredReports.isEmpty()) {
+                Text("No matching reports found. Try a different keyword or indicator type.", color = ShieldMuted)
             } else {
-                reports.forEach { report -> CommunityReportV2(report) }
+                filteredReports.forEach { report -> CommunityReportV2(report) }
             }
-            Button(onClick = onReport, modifier = Modifier.fillMaxWidth().height(50.dp), shape = RoundedCornerShape(15.dp)) { Text("REPORT A SCAM", fontWeight = FontWeight.Bold, letterSpacing = 0.6.sp) }
+
             Card(colors = CardDefaults.cardColors(containerColor = ShieldSurface), shape = RoundedCornerShape(22.dp), border = BorderStroke(1.dp, ShieldViolet.copy(alpha = 0.16f))) {
                 Column(Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(11.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
@@ -132,7 +211,7 @@ fun ReportScamScreenV2(onBack: () -> Unit) {
         Column(Modifier.fillMaxSize().padding(padding).padding(horizontal = 20.dp).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             Spacer(Modifier.height(4.dp)); Text("Report a scam", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = ShieldText)
             Text("Record what you observed. Never enter passwords, OTPs or PINs.", color = ShieldMuted)
-            ReportField("Suspicious URL / phone / indicator", indicator) { indicator = it; error = null }
+            ReportField("Paste anything suspicious [URLs, SMS, etc.]", indicator) { indicator = it; error = null }
             ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = !expanded }) {
                 OutlinedTextField(value = type, onValueChange = {}, readOnly = true, label = { Text("Indicator type") }, trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) }, modifier = Modifier.menuAnchor().fillMaxWidth(), shape = RoundedCornerShape(15.dp))
                 ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) { types.forEach { option -> DropdownMenuItem(text = { Text(option) }, onClick = { type = option; expanded = false }) } }
