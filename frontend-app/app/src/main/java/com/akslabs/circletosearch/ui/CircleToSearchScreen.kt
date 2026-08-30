@@ -152,9 +152,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import androidx.webkit.WebSettingsCompat
 import com.akslabs.circletosearch.data.SearchEngine
 import com.akslabs.circletosearch.data.ScamDetectionApi
-import com.akslabs.circletosearch.ui.components.FriendlyMessageBubble
 import com.akslabs.circletosearch.ui.theme.OverlayGradientColors
-import com.akslabs.circletosearch.utils.FriendlyMessageManager
 import com.akslabs.circletosearch.utils.ImageUtils
 import com.akslabs.circletosearch.utils.QrResult
 import com.akslabs.circletosearch.utils.QrResultWithBounds
@@ -250,11 +248,6 @@ fun CircleToSearchScreen(
     // Support Settings Sheet
     var showSettingsScreen by remember { mutableStateOf(false) }
 
-    // Friendly Message State
-    var friendlyMessage by remember { mutableStateOf("") }
-    var isMessageVisible by remember { mutableStateOf(false) }
-    var isCopyTextTriggered by remember { mutableStateOf(false) }
-    
     // Resizing state
     var isResizing by remember { mutableStateOf(false) }
     var activeHandle by remember { mutableStateOf<String?>(null) } // "tl", "tr", "bl", "br"
@@ -270,17 +263,6 @@ fun CircleToSearchScreen(
     var detectedEntities by remember { mutableStateOf<List<SmartEntity>>(emptyList()) }
     var isExtractingEntities by remember { mutableStateOf(false) }
     
-    LaunchedEffect(Unit) {
-        if (uiPreferences.isShowFriendlyMessages()) {
-            val manager = FriendlyMessageManager(context)
-            friendlyMessage = manager.getNextMessage()
-            delay(500) // Small delay for smooth entrance
-            isMessageVisible = true
-            delay(4000) // Show for 4 seconds
-            isMessageVisible = false
-        }
-    }
-
     // Search State
     var selectedEngine by remember(searchEngines) { mutableStateOf<SearchEngine>(searchEngines.first()) }
     var searchUrl by remember { mutableStateOf<String?>(null) }
@@ -797,22 +779,6 @@ fun CircleToSearchScreen(
         ) {
             // Close button for Copy Mode (Top Left)
 
-            // Friendly Message Overlay (Top Center)
-            if (!isCopyMode) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .offset(y = 100.dp) // Offset to not cover potential top icons
-                        .zIndex(100f), // Ensure on top
-                    contentAlignment = Alignment.TopCenter
-                ) {
-                    FriendlyMessageBubble(
-                        message = friendlyMessage,
-                        visible = isMessageVisible
-                    )
-                }
-            }
-
             // 1. Screenshot Layer
             if (screenshot != null && !isCopyMode) {
                 Box(
@@ -1124,7 +1090,7 @@ fun CircleToSearchScreen(
                     }
                     Spacer(modifier = Modifier.weight(1f))
                     Text(
-                        text = "Scam Detection",
+                        text = "ScamShield",
                         style = MaterialTheme.typography.titleLarge.copy(
                             fontWeight = FontWeight.Bold,
                             color = Color.White
@@ -1239,7 +1205,7 @@ fun CircleToSearchScreen(
                             .padding(horizontal = 12.dp, vertical = 10.dp),
                         verticalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
-                        // ── ROW 1: Scam Detection status ─────────────────────────
+                        // ── ROW 1: ScamShield status ─────────────────────────
                         androidx.compose.material3.Surface(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -1274,7 +1240,7 @@ fun CircleToSearchScreen(
 
                                 Column(modifier = Modifier.weight(1f)) {
                                     Text(
-                                        text = "Scam Detection",
+                                        text = "ScamShield",
                                         style = MaterialTheme.typography.titleMedium.copy(
                                             fontWeight = FontWeight.SemiBold
                                         )

@@ -35,15 +35,25 @@ private val DarkColorScheme = darkColorScheme(
     onError = Color.White
 )
 
-private val LightColorScheme = darkColorScheme(
-    primary = ShieldViolet,
+private val LightColorScheme = androidx.compose.material3.lightColorScheme(
+    primary = ShieldPurple,
     onPrimary = Color.White,
+    primaryContainer = Color(0xFFE9DDFF),
+    onPrimaryContainer = Color(0xFF27104F),
     secondary = ShieldBlue,
-    tertiary = ShieldCyan,
-    background = ShieldBackground,
-    onBackground = ShieldText,
-    surface = ShieldSurface,
-    onSurface = ShieldText
+    onSecondary = Color.White,
+    secondaryContainer = Color(0xFFDDE2FF),
+    onSecondaryContainer = Color(0xFF111A43),
+    tertiary = Color(0xFF006579),
+    onTertiary = Color.White,
+    background = Color(0xFFF9F7FC),
+    onBackground = Color(0xFF1B191F),
+    surface = Color(0xFFF9F7FC),
+    onSurface = Color(0xFF1B191F),
+    surfaceVariant = Color(0xFFE8E0EC),
+    onSurfaceVariant = Color(0xFF4A454D),
+    error = ShieldRed,
+    onError = Color.White
 )
 
 private const val MAX_FONT_SCALE = 1.3f

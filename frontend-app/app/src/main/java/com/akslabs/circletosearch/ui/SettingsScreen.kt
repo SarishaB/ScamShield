@@ -49,11 +49,6 @@ fun SettingsScreen(
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     
-    var showFriendlyMessages by remember { mutableStateOf(uiPreferences.isShowFriendlyMessages()) }
-    LaunchedEffect(showFriendlyMessages) {
-        uiPreferences.setShowFriendlyMessages(showFriendlyMessages)
-    }
-
     ModalBottomSheet(
         onDismissRequest = onDismissRequest,
         sheetState = sheetState,
@@ -81,16 +76,6 @@ fun SettingsScreen(
             // General Section
             SettingsSectionHeader(title = "General")
             
-            SettingsToggleItem(
-                title = "Friendly Messages",
-                subtitle = "Show random greeting messages on trigger",
-                icon = Icons.Default.ChatBubbleOutline,
-                checked = showFriendlyMessages,
-                onCheckedChange = { showFriendlyMessages = it }
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
             SettingsToggleItem(
                 title = "Analysis Details",
                 subtitle = "Show the explanation and scam indicators in results",

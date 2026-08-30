@@ -103,6 +103,20 @@ fun OverlaySettingsScreen(
                 onCheckedChange = { updateConfig(config.copy(isVisible = it)) }
             )
 
+            Spacer(modifier = Modifier.height(12.dp))
+
+            var bubbleEnabled by remember { mutableStateOf(context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE).getBoolean("bubble_enabled", false)) }
+            SettingsToggleItem(
+                title = "Floating ScamShield",
+                subtitle = "Show a movable ScamShield bubble above other apps",
+                icon = Icons.Default.FmdGood,
+                checked = bubbleEnabled,
+                onCheckedChange = { enabled ->
+                    bubbleEnabled = enabled
+                    context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE).edit().putBoolean("bubble_enabled", enabled).apply()
+                }
+            )
+
             Spacer(modifier = Modifier.height(24.dp))
 
             // 2. Overlays List
