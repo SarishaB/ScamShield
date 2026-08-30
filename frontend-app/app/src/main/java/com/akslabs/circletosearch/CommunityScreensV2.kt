@@ -20,10 +20,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.akslabs.circletosearch.data.ScamDetectionApi
 import com.akslabs.circletosearch.ui.theme.ShieldAmber
 import com.akslabs.circletosearch.ui.theme.ShieldBackground
-import com.akslabs.circletosearch.ui.theme.ShieldDim
 import com.akslabs.circletosearch.ui.theme.ShieldMuted
 import com.akslabs.circletosearch.ui.theme.ShieldPurple
 import com.akslabs.circletosearch.ui.theme.ShieldRed
@@ -39,11 +39,7 @@ fun CommunityScreenV2(onBack: () -> Unit, onReport: () -> Unit) {
     var expanded by remember { mutableStateOf(false) }
     val context = LocalContext.current
     Scaffold(containerColor = ShieldBackground, topBar = {
-        TopAppBar(
-            title = { Text("COMMUNITY", fontWeight = FontWeight.Bold, letterSpacing = 1.1.sp) },
-            navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.Default.ArrowBack, "Back", tint = ShieldMuted) } },
-            colors = TopAppBarDefaults.topAppBarColors(containerColor = ShieldBackground, titleContentColor = ShieldText)
-        )
+        TopAppBar(title = { Text("COMMUNITY", fontWeight = FontWeight.Bold, letterSpacing = 1.1.sp) }, navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.Default.ArrowBack, "Back", tint = ShieldMuted) } }, colors = TopAppBarDefaults.topAppBarColors(containerColor = ShieldBackground, titleContentColor = ShieldText))
     }) { padding ->
         Column(Modifier.fillMaxSize().padding(padding).padding(horizontal = 20.dp).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             Spacer(Modifier.height(4.dp))
@@ -53,9 +49,7 @@ fun CommunityScreenV2(onBack: () -> Unit, onReport: () -> Unit) {
             CommunityReportV2("UPI refund impersonation", "Payment fraud", ShieldRed)
             CommunityReportV2("KYC expiry message", "Credential theft", ShieldViolet)
             CommunityReportV2("Fake customer-care number", "Impersonation", ShieldAmber)
-
             Button(onClick = onReport, modifier = Modifier.fillMaxWidth().height(50.dp), shape = RoundedCornerShape(15.dp)) { Text("REPORT A SCAM", fontWeight = FontWeight.Bold, letterSpacing = 0.6.sp) }
-
             Card(colors = CardDefaults.cardColors(containerColor = ShieldSurface), shape = RoundedCornerShape(22.dp), border = BorderStroke(1.dp, ShieldViolet.copy(alpha = 0.16f))) {
                 Column(Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(11.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
@@ -105,7 +99,6 @@ fun ReportScamScreenV2(onBack: () -> Unit) {
     var error by remember { mutableStateOf<String?>(null) }
     var expanded by remember { mutableStateOf(false) }
     val types = listOf("URL", "MESSAGE", "QR", "UPI")
-
     Scaffold(containerColor = ShieldBackground, topBar = {
         TopAppBar(title = { Text("REPORT", fontWeight = FontWeight.Bold, letterSpacing = 1.1.sp) }, navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.Default.ArrowBack, "Back", tint = ShieldMuted) } }, colors = TopAppBarDefaults.topAppBarColors(containerColor = ShieldBackground, titleContentColor = ShieldText))
     }) { padding ->
