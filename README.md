@@ -144,7 +144,7 @@ Combine multiple signals into one score while preserving readable reasons and an
 
 
 
-## 📂 Project structure
+## Project structure
 
 ```text
 ScamShield/
