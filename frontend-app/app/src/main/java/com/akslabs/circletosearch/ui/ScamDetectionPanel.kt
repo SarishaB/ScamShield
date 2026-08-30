@@ -53,7 +53,7 @@ private val ShieldRaised = Color(0xFF18112B)
 
 @Composable
 fun ScamDetectionPanel(
-    result: ScamDetectionApi.Result?,
+    result: ScamDetectionApi.AnalyzeResponse?,
     loading: Boolean,
     error: String?,
     onRetry: () -> Unit,
@@ -122,29 +122,29 @@ fun ScamDetectionPanel(
                     Button(onClick = onRetry, modifier = Modifier.fillMaxWidth()) { Icon(Icons.Default.Refresh, null); Spacer(Modifier.size(8.dp)); Text("Try again") }
                 }
                 result != null -> {
-                    val normalized = result.verdict.trim().uppercase()
-                    val isScam = normalized.contains("SCAM")
-                    val isSuspicious = normalized.contains("SUSPICIOUS") || normalized.contains("RISK") || normalized.contains("WARNING")
-                    val isSafe = normalized == "SAFE" || normalized == "LEGITIMATE"
-                    val icon = when { isScam || isSuspicious -> Icons.Default.Warning; isSafe -> Icons.Default.CheckCircle; else -> Icons.Default.Error }
-                    val tint = when { isScam -> Color(0xFFFF5F7A); isSuspicious -> Color(0xFFFFC45C); isSafe -> Color(0xFF43E0AE); else -> Color(0xFFA49BB8) }
-                    val title = when { isScam -> "LIKELY SCAM"; isSuspicious -> "SUSPICIOUS"; isSafe -> "LOOKS SAFE"; else -> result.verdict.ifBlank { "UNKNOWN RESULT" } }
+                    val normalized = result.riskLevel.trim().uppercase()
+                    val isHigh = normalized == "HIGH"
+                    val isMedium = normalized == "MEDIUM"
+                    val isLow = normalized == "LOW"
+                    val icon = when { isHigh || isMedium -> Icons.Default.Warning; isLow -> Icons.Default.CheckCircle; else -> Icons.Default.Error }
+                    val tint = when { isHigh -> Color(0xFFFF5F7A); isMedium -> Color(0xFFFFC45C); isLow -> Color(0xFF43E0AE); else -> Color(0xFFA49BB8) }
+                    val title = when { isHigh -> "HIGH RISK"; isMedium -> "MEDIUM RISK"; isLow -> "LOW RISK"; else -> result.riskLevel.ifBlank { "UNKNOWN RISK" } }
 
                     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                         Icon(icon, null, modifier = Modifier.size(48.dp), tint = tint)
                         Column {
                             Text(title, color = tint, style = MaterialTheme.typography.headlineSmall, fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold)
-                            result.score?.let { Text("Confidence: ${(it.coerceIn(0f, 1f) * 100f).toInt()}%", color = Color(0xFFA49BB8)) }
+                            Text("Risk score: ${result.riskScore}", color = Color(0xFFA49BB8))
                         }
                     }
-                    if (showAnalysisDetails) {
-                        result.explanation?.takeIf { it.isNotBlank() }?.let { Text(it, color = Color(0xFFF4F0FF)) }
-                    }
-                    if (showAnalysisDetails && result.indicators.isNotEmpty()) {
+                    if (showAnalysisDetails && result.reasons.isNotEmpty()) {
                         Column(Modifier.fillMaxWidth().background(ShieldRaised, RoundedCornerShape(18.dp)).padding(14.dp), verticalArrangement = Arrangement.spacedBy(7.dp)) {
                             Text("WHY IT WAS FLAGGED", color = ShieldBright, style = MaterialTheme.typography.titleSmall, fontWeight = androidx.compose.ui.text.font.FontWeight.Bold)
-                            result.indicators.take(5).forEach { Text("• $it", color = Color(0xFFA49BB8)) }
+                            result.reasons.take(8).forEach { Text("• $it", color = Color(0xFFA49BB8)) }
                         }
+                    }
+                    if (result.safeAction.isNotBlank()) {
+                        Text(result.safeAction, color = Color(0xFFF4F0FF), style = MaterialTheme.typography.bodyMedium)
                     }
                 }
             }

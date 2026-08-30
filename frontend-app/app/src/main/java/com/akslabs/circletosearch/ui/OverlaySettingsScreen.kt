@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.akslabs.circletosearch.data.*
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -50,6 +51,9 @@ fun OverlaySettingsScreen(
     }
 
     val overlayPalette = rememberOverlayPalette(context)
+    val scope = rememberCoroutineScope()
+    var backendUrl by remember { mutableStateOf(ScamDetectionApi.getBaseUrl(context)) }
+    var backendStatus by remember { mutableStateOf<String?>(null) }
     
     Scaffold(
         topBar = {
@@ -77,6 +81,48 @@ fun OverlaySettingsScreen(
                 .verticalScroll(rememberScrollState())
                 .padding(16.dp)
         ) {
+            // 0. Backend connection
+            SettingsSectionHeader(title = "ScamShield API")
+            OutlinedTextField(
+                value = backendUrl,
+                onValueChange = { backendUrl = it; backendStatus = null },
+                singleLine = true,
+                label = { Text("Backend URL") },
+                supportingText = { Text("Use your computer's LAN IP on a physical Xiaomi device.") },
+                modifier = Modifier.fillMaxWidth()
+            )
+            Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()) {
+                OutlinedButton(
+                    onClick = {
+                        runCatching { ScamDetectionApi.setBaseUrl(context, backendUrl) }
+                            .onFailure { backendStatus = it.message }
+                            .onSuccess { backendStatus = "Saved" }
+                    },
+                    modifier = Modifier.weight(1f)
+                ) { Text("SAVE") }
+                OutlinedButton(
+                    onClick = {
+                        runCatching { ScamDetectionApi.setBaseUrl(context, backendUrl) }
+                            .onFailure { backendStatus = it.message }
+                            .onSuccess {
+                                scope.launch {
+                                    backendStatus = try {
+                                        val health = ScamDetectionApi.health(context)
+                                        "${health.status}: ${health.database}"
+                                    } catch (e: Exception) {
+                                        e.message ?: "Backend unavailable"
+                                    }
+                                }
+                            }
+                    },
+                    modifier = Modifier.weight(1f)
+                ) { Text("TEST") }
+            }
+            backendStatus?.let {
+                Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+            Spacer(Modifier.height(18.dp))
+
             // 1. Main Toggles
             SettingsSectionHeader(title = "General")
             SettingsToggleItem(

@@ -382,7 +382,7 @@ fun CircleToSearchScreen(
     var selectionRect by remember { mutableStateOf<Rect?>(null) }
 
     // Scam detection state. A new circle/selection triggers exactly one backend request.
-    var scamResult by remember { mutableStateOf<ScamDetectionApi.Result?>(null) }
+    var scamResult by remember { mutableStateOf<ScamDetectionApi.AnalyzeResponse?>(null) }
     var scamLoading by remember { mutableStateOf(false) }
     var scamError by remember { mutableStateOf<String?>(null) }
     var scamRequestId by remember { mutableStateOf(0) }
@@ -632,7 +632,7 @@ fun CircleToSearchScreen(
                     scamError = null
                     scamResult = null
                     try {
-                        scamResult = ScamDetectionApi.analyze(bitmap)
+                        scamResult = ScamDetectionApi.analyze(bitmap, context)
                     } catch (e: Exception) {
                         android.util.Log.e("CircleToSearch", "Scam detection request failed", e)
                         scamError = e.message ?: "Unable to reach the scam-detection backend"

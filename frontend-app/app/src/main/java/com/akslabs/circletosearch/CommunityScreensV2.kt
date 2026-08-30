@@ -76,11 +76,18 @@ private fun CommunityReportV2(title: String, category: String) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ReportScamScreenV2(onBack: () -> Unit) {
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
     var indicator by remember { mutableStateOf("") }
     var type by remember { mutableStateOf("") }
     var category by remember { mutableStateOf("") }
     var whenWhere by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
+    var submitting by remember { mutableStateOf(false) }
+    var message by remember { mutableStateOf<String?>(null) }
+    var error by remember { mutableStateOf<String?>(null) }
+    var expanded by remember { mutableStateOf(false) }
+    val types = listOf("URL", "MESSAGE", "QR", "UPI")
 
     Scaffold(topBar = {
         TopAppBar(title = { Text("Report a scam") }, navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.Default.ArrowBack, "Back") } })
@@ -88,15 +95,63 @@ fun ReportScamScreenV2(onBack: () -> Unit) {
         Column(Modifier.fillMaxSize().padding(padding).padding(20.dp).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             Text("REPORT A SCAM", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
             Text("Record the observed scam. Do not enter passwords, OTPs or PINs.", color = MaterialTheme.colorScheme.onSurfaceVariant)
-            ReportField("Suspicious URL / phone / indicator", indicator) { indicator = it }
-            ReportField("Type (URL / MESSAGE / QR / UPI)", type) { type = it }
-            ReportField("Scam category", category) { category = it }
+            ReportField("Suspicious URL / phone / indicator", indicator) { indicator = it; error = null }
+
+            ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = !expanded }) {
+                OutlinedTextField(
+                    value = type,
+                    onValueChange = {},
+                    readOnly = true,
+                    label = { Text("Indicator type") },
+                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) },
+                    modifier = Modifier.menuAnchor().fillMaxWidth()
+                )
+                ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+                    types.forEach { option ->
+                        DropdownMenuItem(text = { Text(option) }, onClick = { type = option; expanded = false })
+                    }
+                }
+            }
+
+            ReportField("Scam category", category) { category = it; error = null }
             ReportField("When / where observed", whenWhere) { whenWhere = it }
             OutlinedTextField(value = description, onValueChange = { description = it }, label = { Text("What happened?") }, modifier = Modifier.fillMaxWidth(), minLines = 5)
-            Text("Backend mapping: indicator, type, category and description. When/where can be appended to description until the backend model is extended.", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            Button(onClick = { /* POST /api/v1/reports with ReportRequest */ }, modifier = Modifier.fillMaxWidth(), enabled = indicator.isNotBlank() && type.isNotBlank() && category.isNotBlank()) {
-                Text("SUBMIT REPORT")
+            Text("The API accepts indicator, type, category and optional description. When/where is appended to description.", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+
+            Button(
+                onClick = {
+                    scope.launch {
+                        submitting = true
+                        message = null
+                        error = null
+                        try {
+                            val combinedDescription = listOf(
+                                description.trim(),
+                                whenWhere.trim().takeIf { it.isNotBlank() }?.let { "Observed: $it" }
+                            ).filterNotNull().filter { it.isNotBlank() }.joinToString("\n")
+                            val response = ScamDetectionApi.report(
+                                context = context,
+                                indicator = indicator,
+                                type = type,
+                                category = category,
+                                description = combinedDescription.ifBlank { null }
+                            )
+                            message = response.message
+                        } catch (e: Exception) {
+                            error = e.message ?: "Could not submit report"
+                        } finally {
+                            submitting = false
+                        }
+                    }
+                },
+                modifier = Modifier.fillMaxWidth(),
+                enabled = !submitting && indicator.isNotBlank() && type.isNotBlank() && category.isNotBlank()
+            ) {
+                if (submitting) CircularProgressIndicator(modifier = Modifier.size(18.dp), strokeWidth = 2.dp) else Text("SUBMIT REPORT")
             }
+
+            message?.let { Text(it, color = MaterialTheme.colorScheme.primary) }
+            error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
         }
     }
 }
