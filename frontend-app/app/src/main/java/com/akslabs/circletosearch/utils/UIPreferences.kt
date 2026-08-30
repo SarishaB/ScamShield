@@ -90,6 +90,7 @@ class UIPreferences(context: Context) {
     fun setSearchEngineOrder(order: String) {
         prefs.edit().putString(KEY_SEARCH_ENGINE_ORDER, order).apply()
     }
+
     fun isShowAnalysisDetails(): Boolean {
         return prefs.getBoolean(KEY_SHOW_ANALYSIS_DETAILS, true)
     }
@@ -98,4 +99,8 @@ class UIPreferences(context: Context) {
         prefs.edit().putBoolean(KEY_SHOW_ANALYSIS_DETAILS, isEnabled).apply()
     }
 
+    // Friendly messages are intentionally disabled in ScamShield.
+    // CircleToSearchScreen still contains the legacy message code, but this
+    // keeps the feature permanently off without affecting the rest of the UI.
+    fun isShowFriendlyMessages(): Boolean = false
 }
