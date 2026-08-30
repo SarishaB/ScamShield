@@ -221,7 +221,7 @@ fun ManualScanScreen(onBack: () -> Unit) {
         Spacer(Modifier.height(24.dp))
         Text("Paste a suspicious message or link", color = Color.White, fontSize = 24.sp, fontWeight = FontWeight.Bold)
         Spacer(Modifier.height(8.dp))
-        Text("This screen is ready for the existing /api/v1/analyze/text contract. The network call is intentionally not duplicated here until the frontend API client is wired to the backend.", color = Color(0xFF929DB2), fontSize = 13.sp, lineHeight = 19.sp)
+        Text("", color = Color(0xFF929DB2), fontSize = 13.sp, lineHeight = 19.sp)
         Spacer(Modifier.height(18.dp))
         Box(Modifier.fillMaxWidth().clip(RoundedCornerShape(20.dp)).background(Panel).border(1.dp, Color.White.copy(alpha=.08f), RoundedCornerShape(20.dp)).padding(16.dp)) {
             androidx.compose.foundation.text.BasicTextField(value = text, onValueChange = { text = it }, textStyle = androidx.compose.ui.text.TextStyle(color = Color.White, fontSize = 14.sp), minLines = 7, modifier = Modifier.fillMaxWidth())
