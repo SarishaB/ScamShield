@@ -27,7 +27,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -45,6 +44,12 @@ import androidx.compose.ui.unit.dp
 import com.akslabs.circletosearch.data.ScamDetectionApi
 import com.akslabs.circletosearch.utils.UIPreferences
 import androidx.compose.ui.platform.LocalContext
+
+private val ShieldViolet = Color(0xFF9B6CFF)
+private val ShieldBright = Color(0xFFC09BFF)
+private val ShieldPurple = Color(0xFF7138D4)
+private val ShieldSurface = Color(0xFF110D20)
+private val ShieldRaised = Color(0xFF18112B)
 
 @Composable
 fun ScamDetectionPanel(
@@ -69,73 +74,52 @@ fun ScamDetectionPanel(
                 detectDragGestures(
                     onDrag = { change, dragAmount ->
                         change.consume()
-                        // This sheet is intentionally only draggable downward.
                         dragOffsetPx = (dragOffsetPx + dragAmount.y).coerceAtLeast(0f)
                     },
                     onDragEnd = {
                         if (dragOffsetPx >= dismissThresholdPx) {
                             dragOffsetPx = 0f
                             onClose()
-                        } else {
-                            dragOffsetPx = 0f
-                        }
+                        } else dragOffsetPx = 0f
                     },
                     onDragCancel = { dragOffsetPx = 0f }
                 )
             },
-        shape = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp),
-        tonalElevation = 8.dp,
-        shadowElevation = 12.dp,
-        color = MaterialTheme.colorScheme.surface
+        shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp),
+        tonalElevation = 10.dp,
+        shadowElevation = 18.dp,
+        color = ShieldSurface
     ) {
         Column(
-            modifier = Modifier.padding(horizontal = 22.dp, vertical = 10.dp),
+            modifier = Modifier.padding(horizontal = 22.dp, vertical = 11.dp),
             verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
-            // Search-style drag handle. Pull down to dismiss the scam check.
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 2.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                Box(
-                    modifier = Modifier
-                        .width(36.dp)
-                        .height(4.dp)
-                        .background(
-                            MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.45f),
-                            RoundedCornerShape(50)
-                        )
-                )
+            Box(Modifier.fillMaxWidth().padding(vertical = 2.dp), contentAlignment = Alignment.Center) {
+                Box(Modifier.width(42.dp).height(4.dp).background(ShieldViolet.copy(alpha = .55f), RoundedCornerShape(50)))
             }
-            Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                Column(modifier = Modifier.weight(1f)) {
-                    Text("Scam check", style = MaterialTheme.typography.titleLarge)
-                    Text(
-                        if (loading) "Analyzing the selected content…" else "Analysis complete",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
+            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                Box(Modifier.size(42.dp).background(ShieldPurple.copy(alpha = .25f), RoundedCornerShape(14.dp)), contentAlignment = Alignment.Center) {
+                    Icon(Icons.Default.Warning, null, tint = ShieldBright, modifier = Modifier.size(23.dp))
                 }
-                IconButton(onClick = onClose) { Icon(Icons.Default.Close, "Close") }
+                Spacer(Modifier.width(12.dp))
+                Column(Modifier.weight(1f)) {
+                    Text("SCAMSHIELD ANALYSIS", color = Color(0xFFF4F0FF), style = MaterialTheme.typography.titleMedium, fontWeight = androidx.compose.ui.text.font.FontWeight.Bold)
+                    Text(if (loading) "Analyzing selected content…" else "Threat assessment", style = MaterialTheme.typography.bodySmall, color = Color(0xFFA49BB8))
+                }
+                IconButton(onClick = onClose) { Icon(Icons.Default.Close, "Close", tint = Color(0xFFA49BB8)) }
             }
 
             when {
                 loading -> {
-                    CircularProgressIndicator(modifier = Modifier.size(44.dp).align(Alignment.CenterHorizontally))
-                    Text("Checking the selected image with your backend…", modifier = Modifier.align(Alignment.CenterHorizontally))
-                    LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+                    CircularProgressIndicator(color = ShieldViolet, modifier = Modifier.size(44.dp).align(Alignment.CenterHorizontally))
+                    Text("Checking selected content…", color = Color(0xFFA49BB8), modifier = Modifier.align(Alignment.CenterHorizontally))
+                    LinearProgressIndicator(color = ShieldViolet, trackColor = ShieldRaised, modifier = Modifier.fillMaxWidth())
                 }
                 error != null -> {
-                    Icon(Icons.Default.Error, null, modifier = Modifier.size(42.dp).align(Alignment.CenterHorizontally))
-                    Text("Could not complete the scam check", style = MaterialTheme.typography.titleMedium)
-                    Text(error, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    Button(onClick = onRetry, modifier = Modifier.fillMaxWidth()) {
-                        Icon(Icons.Default.Refresh, null)
-                        Spacer(Modifier.size(8.dp))
-                        Text("Try again")
-                    }
+                    Icon(Icons.Default.Error, null, tint = Color(0xFFFF5F7A), modifier = Modifier.size(42.dp).align(Alignment.CenterHorizontally))
+                    Text("Could not complete the scam check", color = Color(0xFFF4F0FF), style = MaterialTheme.typography.titleMedium)
+                    Text(error, color = Color(0xFFA49BB8))
+                    Button(onClick = onRetry, modifier = Modifier.fillMaxWidth()) { Icon(Icons.Default.Refresh, null); Spacer(Modifier.size(8.dp)); Text("Try again") }
                 }
                 result != null -> {
                     val normalized = result.verdict.trim().uppercase()
@@ -143,26 +127,23 @@ fun ScamDetectionPanel(
                     val isSuspicious = normalized.contains("SUSPICIOUS") || normalized.contains("RISK") || normalized.contains("WARNING")
                     val isSafe = normalized == "SAFE" || normalized == "LEGITIMATE"
                     val icon = when { isScam || isSuspicious -> Icons.Default.Warning; isSafe -> Icons.Default.CheckCircle; else -> Icons.Default.Error }
-                    val tint = when { isScam -> MaterialTheme.colorScheme.error; isSuspicious -> MaterialTheme.colorScheme.tertiary; isSafe -> MaterialTheme.colorScheme.primary; else -> MaterialTheme.colorScheme.onSurfaceVariant }
-                    val title = when { isScam -> "Likely scam"; isSuspicious -> "Suspicious"; isSafe -> "Looks safe"; else -> result.verdict.ifBlank { "Unknown result" } }
+                    val tint = when { isScam -> Color(0xFFFF5F7A); isSuspicious -> Color(0xFFFFC45C); isSafe -> Color(0xFF43E0AE); else -> Color(0xFFA49BB8) }
+                    val title = when { isScam -> "LIKELY SCAM"; isSuspicious -> "SUSPICIOUS"; isSafe -> "LOOKS SAFE"; else -> result.verdict.ifBlank { "UNKNOWN RESULT" } }
 
                     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                         Icon(icon, null, modifier = Modifier.size(48.dp), tint = tint)
                         Column {
-                            Text(title, style = MaterialTheme.typography.headlineSmall)
-                            result.score?.let { Text("Confidence: ${(it.coerceIn(0f, 1f) * 100f).toInt()}%", color = MaterialTheme.colorScheme.onSurfaceVariant) }
+                            Text(title, color = tint, style = MaterialTheme.typography.headlineSmall, fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold)
+                            result.score?.let { Text("Confidence: ${(it.coerceIn(0f, 1f) * 100f).toInt()}%", color = Color(0xFFA49BB8)) }
                         }
                     }
                     if (showAnalysisDetails) {
-                        result.explanation?.takeIf { it.isNotBlank() }?.let { Text(it) }
+                        result.explanation?.takeIf { it.isNotBlank() }?.let { Text(it, color = Color(0xFFF4F0FF)) }
                     }
                     if (showAnalysisDetails && result.indicators.isNotEmpty()) {
-                        Column(
-                            modifier = Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(16.dp)).padding(14.dp),
-                            verticalArrangement = Arrangement.spacedBy(7.dp)
-                        ) {
-                            Text("Why it was flagged", style = MaterialTheme.typography.titleSmall)
-                            result.indicators.take(5).forEach { Text("• $it") }
+                        Column(Modifier.fillMaxWidth().background(ShieldRaised, RoundedCornerShape(18.dp)).padding(14.dp), verticalArrangement = Arrangement.spacedBy(7.dp)) {
+                            Text("WHY IT WAS FLAGGED", color = ShieldBright, style = MaterialTheme.typography.titleSmall, fontWeight = androidx.compose.ui.text.font.FontWeight.Bold)
+                            result.indicators.take(5).forEach { Text("• $it", color = Color(0xFFA49BB8)) }
                         }
                     }
                 }
