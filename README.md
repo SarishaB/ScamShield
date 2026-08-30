@@ -58,6 +58,53 @@ Instead of only showing a binary warning, ScamShield returns:
 
 ---
 
+## Product walkthrough
+
+### 1. Start protected
+
+<div align="center">
+  <img width="245" alt="ScamShield onboarding" src="https://github.com/user-attachments/assets/287af034-4069-49a2-b497-3fc423021377" />
+  &nbsp;&nbsp;&nbsp;
+  <img width="245" alt="ScamShield home screen" src="https://github.com/user-attachments/assets/0ac4a45b-a011-448e-9072-ba8ab3815998" />
+</div>
+
+<br/>
+
+The app introduces the in-context scanning model during onboarding, then exposes text, URL and image scanning from the main **Protect** screen alongside the floating-scanner control.
+
+### 2. Scan what looks suspicious — where you found it
+
+<div align="center">
+  <img width="330" alt="ScamShield in-context circle scan" src="https://github.com/user-attachments/assets/bfd4776e-a0c5-493e-8789-1870afabcb3e" />
+</div>
+
+<br/>
+
+The floating ScamShield trigger can be invoked over another app. The user selects the suspicious content and sends that context into the ScamShield analysis flow.
+
+### 3. Get an explainable result
+
+<div align="center">
+<table>
+<tr>
+<td align="center"><strong>LOW RISK</strong></td>
+<td align="center"><strong>HIGH RISK</strong></td>
+</tr>
+<tr>
+<td>
+  <img width="330" alt="low risk" src="https://github.com/user-attachments/assets/8bea6060-d439-4b7c-886c-3f9728e1c8c2" />
+</td>
+<td>
+  <img width="330" alt="high risk" src="https://github.com/user-attachments/assets/1628eb6a-d211-44b7-8735-8c5711441b57" />
+</td>
+</tr>
+</table>
+</div>
+
+A result is not just a color or label: the user sees the risk score, the strongest reasons behind the assessment and a safer next step.
+
+---
+
 ## Key features
 
 <table>
