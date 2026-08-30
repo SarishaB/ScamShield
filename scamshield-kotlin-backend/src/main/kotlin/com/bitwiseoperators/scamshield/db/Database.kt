@@ -36,12 +36,14 @@ class Database(config: DatabaseConfig) {
                     )
                     """.trimIndent()
                 )
+
                 s.executeUpdate(
                     """
                     CREATE INDEX IF NOT EXISTS idx_reports_indicator_hash
                     ON community_reports(indicator_hash)
                     """.trimIndent()
                 )
+
                 s.executeUpdate(
                     """
                     CREATE INDEX IF NOT EXISTS idx_reports_created_at
@@ -60,6 +62,7 @@ class Database(config: DatabaseConfig) {
     ) {
         val normalized = normalize(indicator)
         val hash = sha256(normalized)
+
         connection().use { c ->
             c.prepareStatement(
                 """
@@ -91,10 +94,15 @@ class Database(config: DatabaseConfig) {
                 """.trimIndent()
             ).use { ps ->
                 ps.setString(1, hash)
+
                 ps.executeQuery().use { rs ->
                     rs.next()
+
                     val count = rs.getInt(1)
-                    val categories = (rs.getArray(2)?.array as? Array<*>)?.map { it.toString() } ?: emptyList()
+                    val categories =
+                        (rs.getArray(2)?.array as? Array<*>)?.map { it.toString() }
+                            ?: emptyList()
+
                     return CommunityResult(
                         reports = count,
                         corroborated = count >= 3,

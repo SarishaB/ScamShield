@@ -5,13 +5,14 @@ import com.bitwiseoperators.scamshield.db.Database
 import com.bitwiseoperators.scamshield.routes.configureRoutes
 import com.bitwiseoperators.scamshield.services.*
 import io.ktor.server.application.*
-import io.ktor.server.cors.routing.*
+import io.ktor.server.plugins.cors.routing.*
 import io.ktor.server.plugins.calllogging.*
 import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.plugins.statuspages.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.json.Json
 import org.slf4j.event.Level
+import io.ktor.server.response.respond
 
 fun main(args: Array<String>) {
     io.ktor.server.netty.EngineMain.main(args)
@@ -49,7 +50,7 @@ fun Application.module() {
 
     install(StatusPages) {
         exception<Throwable> { call, cause ->
-            application.log.error("Unhandled request error", cause)
+            call.application.log.error("Unhandled request error", cause)
             call.respond(
                 io.ktor.http.HttpStatusCode.InternalServerError,
                 com.bitwiseoperators.scamshield.model.ErrorResponse(
